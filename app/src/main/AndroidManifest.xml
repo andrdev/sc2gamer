@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.github.andrdev.sc2gamer"
+          android:versionCode="1"
+          android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="16"
+              android:targetSdkVersion="19"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <application android:label="@string/app_name"
+                 android:icon="@drawable/ic_launcher">
+        <activity android:name=".ArticleActivity"></activity>
+        <activity android:name=".AlarmDialogActivity"
+                  android:theme="@style/Theme.Transparent"></activity>
+
+        <activity android:name=".PreferenceActivity"></activity>
+        <activity
+                android:name="com.github.andrdev.sc2gamer.MainActivity"
+                android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <receiver android:name="com.github.andrdev.sc2gamer.AlarmReceiver"/>
+        <provider android:authorities="com.git.andrdev.sc2gamer.contentprovider"
+                  android:name="com.github.andrdev.sc2gamer.Sc2provider"
+                  android:exported="false"/>
+        <service android:name="com.octo.android.robospice.UncachedSpiceService"
+                 android:exported="false" />
+        <service android:name="com.github.andrdev.sc2gamer.AlarmCreatorService"
+                 android:exported="false"/>
+        <receiver android:name="com.github.andrdev.sc2gamer.BootAlarmReceiver"
+                  android:enabled="true"
+                  android:exported="true"
+                  android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
+                  <intent-filter>
+                      <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                  </intent-filter>/></receiver>
+    </application>
+</manifest>
