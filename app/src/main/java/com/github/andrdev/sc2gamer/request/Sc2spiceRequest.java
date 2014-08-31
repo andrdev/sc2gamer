@@ -1,10 +1,11 @@
 package com.github.andrdev.sc2gamer.request;
 
 
+import com.github.andrdev.sc2gamer.JsoupHelper;
 import com.github.andrdev.sc2gamer.database.GamesTable;
 import com.github.andrdev.sc2gamer.database.NewsTable;
-import com.github.andrdev.sc2gamer.JsoupHelper;
 import com.octo.android.robospice.request.SpiceRequest;
+
 import java.util.List;
 
 

@@ -38,7 +38,7 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
     private static final SpiceManager mSpiceManager = new SpiceManager(UncachedSpiceService.class);
     private boolean mIsRefreshing = false;
     private MenuItem refreshButton;
-    private final int  mLoaderId = getLoader();
+    private final int mLoaderId = getLoader();
     private final String mRequestId = getRequestId();
 
     @Override
@@ -52,8 +52,11 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
     }
 
     abstract SimpleCursorAdapter createCursorAdapter();
+
     abstract int getLoader();
+
     abstract PendingRequestListener getRequestListener();
+
     abstract String getRequestId();
 
     @Override
@@ -63,6 +66,7 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
         setRefreshActionButtonState();
         super.onCreateOptionsMenu(menu, inflater);
     }
+
     public void onStart() {
         super.onStart();
         mSpiceManager.start(getActivity());
@@ -71,12 +75,11 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
             }
+
             @Override
             public void onScroll
                     (AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                Log.d("Dree","scroll "+firstVisibleItem+" "+visibleItemCount+" "+totalItemCount);
-//                if (firstVisibleItem + visibleItemCount >= totalItemCount - 5&&!mSharedPreferences.getBoolean(REFRESH_STATE, false)) {
-                if (firstVisibleItem + visibleItemCount >= totalItemCount - 5&&!mIsRefreshing) {
+                if (firstVisibleItem + visibleItemCount >= totalItemCount - 5 && !mIsRefreshing) {
                     refresh();
                 }
             }
@@ -97,7 +100,7 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
     }
 
     private boolean refresh() {
-        if(!JsoupHelper.isLastGamesPage()){
+        if (!JsoupHelper.isLastGamesPage()) {
             refreshAction(true);
             Sc2spiceRequest gms = new Sc2spiceRequest(mRequestId);
             mSpiceManager.execute(gms, mRequestId, DurationInMillis.ALWAYS_EXPIRED,
@@ -120,6 +123,7 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mSimpleCursorAdapter.swapCursor(cursor);
     }
+
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mSimpleCursorAdapter.swapCursor(null);
@@ -130,6 +134,7 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
         public void onRequestFailure(SpiceException e) {
             refreshAction(false);
         }
+
         public void onRequestSuccess(List contentValues) {
             if (contentValues.size() > 0) {
                 saveData(contentValues);
@@ -138,11 +143,12 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
         }
 
         private void saveData(List<ContentValues> contentValues) {
-            if(isFirstPage()){
+            if (isFirstPage()) {
                 getActivity().getContentResolver().delete(getUri(), null, null);
             }
             getActivity().getContentResolver().bulkInsert(getUri(), contentValues.toArray(new ContentValues[contentValues.size()]));
         }
+
         @Override
         public void onRequestNotFound() {
             refreshAction(false);
@@ -169,9 +175,7 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
     }
 
     private void setRefreshActionButtonState() {
-        Log.d("Dree", "setRf ");
         if (refreshButton != null) {
-//            if (mSharedPreferences.getBoolean(REFRESH_STATE, false)) {
             if (mIsRefreshing) {
                 refreshButton.setActionView(R.layout.actionbar_progress);
             } else {

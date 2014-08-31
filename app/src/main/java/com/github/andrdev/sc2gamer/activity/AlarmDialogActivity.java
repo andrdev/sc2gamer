@@ -16,8 +16,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
-import com.github.andrdev.sc2gamer.database.GamesTable;
 import com.github.andrdev.sc2gamer.R;
+import com.github.andrdev.sc2gamer.database.GamesTable;
 import com.github.andrdev.sc2gamer.database.Sc2provider;
 
 import java.io.File;
@@ -41,7 +41,8 @@ public class AlarmDialogActivity extends SherlockActivity {
         populate();
         startSound();
     }
-    void init(){
+
+    void init() {
         mTeamName1 = (TextView) findViewById(R.id.dialogName1);
         mTeamName2 = (TextView) findViewById(R.id.dialogName2);
         mTeamLogo1 = (ImageView) findViewById(R.id.dialogLogo1);
@@ -51,24 +52,30 @@ public class AlarmDialogActivity extends SherlockActivity {
             @Override
             public void onClick(View v) {
                 mMediaPlayer.stop();
+                mMediaPlayer.release();
                 finish();
             }
         });
     }
-    void populate(){
+
+    void populate() {
         String alarmId = String.valueOf(getIntent().getIntExtra("AlarmId", 1));
         mImageFolder = this.getCacheDir();
         Cursor cursor = this.getContentResolver().query(Sc2provider.CONTENT_URI_ALARMS,
                 null, GamesTable._ID + " = ?", new String[]{alarmId}, null);
-        cursor.moveToFirst();
-        mTeamName1.setText(cursor.getString(1));
-        mTeamName2.setText(cursor.getString(3));
-        Bitmap bitmap = BitmapFactory
-                .decodeFile(mImageFolder + "/" + cursor.getString(2));
-        mTeamLogo1.setImageBitmap(bitmap);
-        bitmap = BitmapFactory
-                .decodeFile(mImageFolder + "/" + cursor.getString(4));
-        mTeamLogo2.setImageBitmap(bitmap);
+        try {
+            cursor.moveToFirst();
+            mTeamName1.setText(cursor.getString(1));
+            mTeamName2.setText(cursor.getString(3));
+            Bitmap bitmap = BitmapFactory
+                    .decodeFile(mImageFolder + "/" + cursor.getString(2));
+            mTeamLogo1.setImageBitmap(bitmap);
+            bitmap = BitmapFactory
+                    .decodeFile(mImageFolder + "/" + cursor.getString(4));
+            mTeamLogo2.setImageBitmap(bitmap);
+        } finally {
+            cursor.close();
+        }
     }
 
     void startSound() {

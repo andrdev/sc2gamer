@@ -18,12 +18,13 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
+
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.andrdev.sc2gamer.JsoupHelper;
-import com.github.andrdev.sc2gamer.database.NewsTable;
 import com.github.andrdev.sc2gamer.R;
+import com.github.andrdev.sc2gamer.database.NewsTable;
 import com.github.andrdev.sc2gamer.database.Sc2provider;
 import com.github.andrdev.sc2gamer.request.Sc2spiceRequest;
 import com.octo.android.robospice.SpiceManager;
@@ -34,8 +35,9 @@ import com.octo.android.robospice.request.listener.PendingRequestListener;
 
 import java.util.List;
 
-/** NewsListFragment
- * */
+/**
+ * NewsListFragment
+ */
 public class NewsListFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final int mLoaderId = 1;
@@ -47,6 +49,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     private MenuItem mRefreshButton;
     private boolean mIsRefreshing = false;
     private NewsCallbacks mNewsCallbacks;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mSimpleCursorAdapter = new SimpleCursorAdapter
@@ -61,7 +64,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mNewsCallbacks = (NewsCallbacks)activity;
+        mNewsCallbacks = (NewsCallbacks) activity;
     }
 
     @Override
@@ -85,7 +88,6 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
             @Override
             public void onScroll
                     (AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                Log.d("Dree", "scroll " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount);
                 if (firstVisibleItem + visibleItemCount >= totalItemCount - 5 && !mIsRefreshing) {
                     refresh();
                 }
@@ -116,7 +118,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     }
 
     private boolean refresh() {
-        if(!JsoupHelper.isLastNewsPage()) {
+        if (!JsoupHelper.isLastNewsPage()) {
             refreshAction(true);
             Sc2spiceRequest gms = new Sc2spiceRequest(NewsTable.TABLE);
             mSpiceManager.execute(gms, NewsTable.TABLE, DurationInMillis.ALWAYS_EXPIRED, new NewsListRequestListener());

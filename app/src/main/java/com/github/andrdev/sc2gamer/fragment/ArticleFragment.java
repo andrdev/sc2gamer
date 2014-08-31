@@ -6,9 +6,9 @@ import android.os.Bundle;
 import com.github.andrdev.sc2gamer.JsoupHelper;
 import com.github.andrdev.sc2gamer.database.NewsTable;
 
-/**Fragment that shows article, after click on a row from NewsListFragment.
- *
- * */
+/**
+ * Fragment that shows article, after click on a row from NewsListFragment.
+ */
 public class ArticleFragment extends WebViewFragment {
     private String mArticleText;
     private String mLink;
@@ -25,6 +25,6 @@ public class ArticleFragment extends WebViewFragment {
 
     @Override
     String getPage() {
-        return JsoupHelper.GAME_SITE+mLink;
+        return JsoupHelper.GAME_SITE + mLink;
     }
 }

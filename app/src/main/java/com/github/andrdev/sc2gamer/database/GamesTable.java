@@ -24,8 +24,11 @@ public class GamesTable implements BaseColumns {
     public static final String DEFAULT_ALARM = "false";
     public static final String SET_ALARM = "true";
     private static final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
+
     static {
-    mSimpleDateFormat.setTimeZone(TimeZone.getDefault());}
+        mSimpleDateFormat.setTimeZone(TimeZone.getDefault());
+    }
+
     //    static final String GAMES_TRIGGER_NAME = "alarm_trigger";
 //    static final String GAMES_TRIGGER = "CREATE TRIGGER " + GAMES_TRIGGER_NAME + " BEFORE INSERT ON " + TABLE +
 //            " BEGIN DELETE FROM " + TABLE +
@@ -59,7 +62,7 @@ public class GamesTable implements BaseColumns {
         onCreate(db);
     }
 
-     public static class GameCursor extends CursorWrapper {
+    public static class GameCursor extends CursorWrapper {
         public GameCursor(Cursor cursor) {
             super(cursor);
         }

@@ -1,10 +1,9 @@
-package com.github.andrdev.sc2gamer.fragment;
+package com.github.andrdev.sc2gamer.activity;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
@@ -14,7 +13,7 @@ public abstract class SingleFragmentActivity extends SherlockFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(android.R.id.content );
+        Fragment fragment = fm.findFragmentById(android.R.id.content);
         if (fragment == null) {
             fragment = createFragment();
             fm.beginTransaction()
@@ -22,5 +21,6 @@ public abstract class SingleFragmentActivity extends SherlockFragmentActivity {
                     .commit();
         }
     }
-   public abstract SherlockFragment createFragment();
+
+    public abstract SherlockFragment createFragment();
 }

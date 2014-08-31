@@ -14,16 +14,12 @@ public class GameInfoRequest extends SpiceRequest<ContentValues> {
 
     public GameInfoRequest(Class<ContentValues> clazz, String url) {
         super(clazz);
-        Log.d("DreeStart", "crv " + url);
-
         mUrl = url;
     }
 
     @Override
     public ContentValues loadDataFromNetwork() throws Exception {
-        Log.d("Drebef", "load");
         ContentValues cv = JsoupHelper.getGameInfo(mUrl);
-        Log.d("Drebef", "loadaft");
         return cv;
     }
 }

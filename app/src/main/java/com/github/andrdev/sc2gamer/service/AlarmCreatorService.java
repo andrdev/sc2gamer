@@ -18,7 +18,7 @@ import com.github.andrdev.sc2gamer.receiver.AlarmReceiver;
 /**
  * Service, that responsible for setting and canceling alarms on upcoming games.
  * BOOT and CLICK are constants for actions, that sent with intent.
- * */
+ */
 
 public class AlarmCreatorService extends IntentService {
     public final static int BOOT = 1;
@@ -36,6 +36,7 @@ public class AlarmCreatorService extends IntentService {
      * Reads ALARM_EVENT extra from the intent, and proceed accordingly.
      * BOOT sent from the BootAlarmReceiver class, and reset alarms that still must be played.
      * CLICK sent from GamesListFragment class.
+     *
      * @param intent
      */
     @Override
@@ -51,7 +52,7 @@ public class AlarmCreatorService extends IntentService {
                 ContentValues cv = new ContentValues();
                 String alarmAction = intent.getStringExtra(GamesTable.ALARM);
                 int id = intent.getIntExtra(GamesTable._ID, -1);
-                if (alarmAction!=null&&alarmAction.equals(GamesTable.DEFAULT_ALARM)) {
+                if (alarmAction != null && alarmAction.equals(GamesTable.DEFAULT_ALARM)) {
                     alarmAction = GamesTable.SET_ALARM;
                     int time = intent.getIntExtra(GamesTable.TIME, -1);
                     setAlarm(id, time);
@@ -74,10 +75,14 @@ public class AlarmCreatorService extends IntentService {
         String[] columns = {GamesTable._ID, GamesTable.TIME};
         Cursor cursor = this.getContentResolver().query(Sc2provider.CONTENT_URI_ALARMS,
                 columns, GamesTable.ALARM + " = ?", new String[]{GamesTable.SET_ALARM}, null);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                setAlarm(cursor.getInt(0), cursor.getInt(1));
+        try {
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    setAlarm(cursor.getInt(0), cursor.getInt(1));
+                }
             }
+        } finally {
+            cursor.close();
         }
     }
 
@@ -89,8 +94,7 @@ public class AlarmCreatorService extends IntentService {
         if (!earlyAlarmPreference.isEmpty()) {
             earlyAlarmTime = 60 * 1000 * Integer.valueOf(earlyAlarmPreference);
         }
-        long alarmTime = 1000+System.currentTimeMillis();
-        Log.d("DREEtime", ""+alarmTime);
+        long alarmTime = 1000 + System.currentTimeMillis();
         if (alarmTime > System.currentTimeMillis()) {
             alarmIntent.putExtra("AlarmId", id);
             PendingIntent pi = PendingIntent.getBroadcast

@@ -35,7 +35,7 @@ public class Sc2provider extends ContentProvider {
     private final static String SORT_GAMES = GamesTable.TIME;
 
     /**
-     *An Uri's.
+     * An Uri's.
      */
     public static final Uri CONTENT_URI_GAMES = Uri.parse("content://" + AUTHORITY + "/" + PATH_GAMES);
     public static final Uri CONTENT_URI_NEWS = Uri.parse("content://" + AUTHORITY + "/" + PATH_NEWS);
@@ -43,33 +43,25 @@ public class Sc2provider extends ContentProvider {
             "/" + PATH_GAMES + "/" + PATH_ALARMS);
 
     /**
-     *Creating matcher and adding Uri's to it.
+     * Creating matcher and adding Uri's to it.
      */
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
+
     static {
         MATCHER.addURI(AUTHORITY, PATH_GAMES, GAMES_LIST);
         MATCHER.addURI(AUTHORITY, PATH_GAMES + "/" + PATH_ALARMS, GAMES_ALARM);
         MATCHER.addURI(AUTHORITY, PATH_NEWS, NEWS_LIST);
     }
 
-    /**
-     * Create DBHelper object to interact with the db.
-     * @return true
-     */
     @Override
     public boolean onCreate() {
         dbHelper = new DBHelper(getContext());
         return true;
     }
 
-    /**
-     *query the DB according to the Uri sent.
-     * Alarm Uri returns a cursor with the List of games where alarms are set.
-     * Games and News Uri returns list of games or news. Games list sorted by time ascending.
-     * Sent notification
-     */
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query
+    (Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor;
@@ -96,13 +88,6 @@ public class Sc2provider extends ContentProvider {
         throw new UnsupportedOperationException("GetType not supported.");
     }
 
-    /**
-     * bulkInsert inserts the array of ContentValues to the proper table (according to the Uri).
-     * ContentResolver notifies loader with Uri.
-     * @param uri
-     * @param values
-     * @return
-     */
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -113,7 +98,8 @@ public class Sc2provider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues value : values) {
-                        db.insertWithOnConflict(GamesTable.TABLE, GamesTable.ALARM, value, SQLiteDatabase.CONFLICT_IGNORE);
+                        db.insertWithOnConflict
+                                (GamesTable.TABLE, GamesTable.ALARM, value, SQLiteDatabase.CONFLICT_IGNORE);
                     }
                     db.setTransactionSuccessful();
                 } finally {
@@ -160,19 +146,11 @@ public class Sc2provider extends ContentProvider {
 //                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
-//        throw new UnsupportedOperationException("Insert not supported. Use bulkInsert.");
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return uri;
     }
 
-    /**
-     * clears all news table, or games in games table where alarm column are false, or time > currenttime.
-     * @param uri
-     * @param selection
-     * @param selectionArgs
-     * @return
-     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -193,15 +171,6 @@ public class Sc2provider extends ContentProvider {
         return 0;
     }
 
-    /**
-     * update an alarm column of the row in games table after click. ContentResolver notifies loader
-     * from GamesListFragment with GAMES_ALARM Uri.
-     * @param uri
-     * @param values
-     * @param selection
-     * @param selectionArgs
-     * @return
-     */
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -225,8 +194,5 @@ public class Sc2provider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return 0;
     }
-
-
-
 }
 

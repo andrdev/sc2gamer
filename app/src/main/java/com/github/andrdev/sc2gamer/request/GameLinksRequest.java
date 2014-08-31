@@ -5,15 +5,15 @@ import com.github.andrdev.sc2gamer.JsoupHelper;
 import java.util.LinkedList;
 
 
-public class GameLinksRequest extends BaseListRequest{
+public class GameLinksRequest extends BaseListRequest {
 
-        public GameLinksRequest(Class<LinkedList> clazz) {
-            super(clazz);
-        }
+    public GameLinksRequest(Class<LinkedList> clazz) {
+        super(clazz);
+    }
 
-        @Override
-        public LinkedList<String> loadDataFromNetwork() {
-            LinkedList<String> gameLienks = JsoupHelper.getGamesLinks();
-            return gameLienks;
-        }
+    @Override
+    public LinkedList<String> loadDataFromNetwork() {
+        LinkedList<String> gameLienks = JsoupHelper.getGamesLinks();
+        return gameLienks;
+    }
 }

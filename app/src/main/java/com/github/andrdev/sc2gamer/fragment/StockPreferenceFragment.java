@@ -9,7 +9,7 @@ public class StockPreferenceFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int res=getActivity()
+        int res = getActivity()
                 .getResources()
                 .getIdentifier(getArguments().getString("resource"),
                         "xml",

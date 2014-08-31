@@ -19,18 +19,19 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.github.andrdev.sc2gamer.adapter.GameRowAdapter;
-import com.github.andrdev.sc2gamer.request.GameInfoRequest;
-import com.github.andrdev.sc2gamer.request.GameLinksRequest;
-import com.github.andrdev.sc2gamer.service.AlarmCreatorService;
-import com.github.andrdev.sc2gamer.database.GamesTable;
 import com.github.andrdev.sc2gamer.JsoupHelper;
 import com.github.andrdev.sc2gamer.LogosDownloader;
 import com.github.andrdev.sc2gamer.R;
+import com.github.andrdev.sc2gamer.adapter.GameRowAdapter;
+import com.github.andrdev.sc2gamer.database.GamesTable;
 import com.github.andrdev.sc2gamer.database.Sc2provider;
+import com.github.andrdev.sc2gamer.request.GameInfoRequest;
+import com.github.andrdev.sc2gamer.request.GameLinksRequest;
+import com.github.andrdev.sc2gamer.service.AlarmCreatorService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.UncachedSpiceService;
 import com.octo.android.robospice.persistence.DurationInMillis;
@@ -65,7 +66,7 @@ public class GamesListFragment extends SherlockListFragment implements
     private GameRowAdapter mSimpleCursorAdapter;
     private MenuItem mRefreshButton;
     private LogosDownloader mThumbThread;
-    private LinkedList <String> mGamesLinks = new LinkedList<String>();
+    private LinkedList<String> mGamesLinks = new LinkedList<String>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +79,6 @@ public class GamesListFragment extends SherlockListFragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d("Dree", "crv " + JsoupHelper.getGamesPageCount());
         mSimpleCursorAdapter = new GameRowAdapter
                 (getActivity(), R.layout.row_game, null, mGamesColumns, mGamesFields, 0, mThumbThread);
         setListAdapter(mSimpleCursorAdapter);
@@ -94,35 +94,35 @@ public class GamesListFragment extends SherlockListFragment implements
         setRefreshActionButtonState();
     }
 
-    //starting spicemanager, and checking for pending request
     @Override
     public void onStart() {
         super.onStart();
         mSpiceManager.start(getActivity());
         if (!mGamesLinks.isEmpty()) {
-            Log.d("DreeStart", "game " + mGamesLinks.size());
             mSpiceManager.addListenerIfPending
-                    (ContentValues.class, "gameLinks "+mGamesLinks.size(), new GameInfoRequestListener());
-        } else{
-            Log.d("DreeStart", "list " + mGamesLinks.size());
+                    (ContentValues.class, "gameLinks " + mGamesLinks.size(), new GameInfoRequestListener());
+        } else {
             mSpiceManager.addListenerIfPending
-                (LinkedList.class, GamesTable.TABLE, new GamesLinksRequestListener());}
+                    (LinkedList.class, GamesTable.TABLE, new GamesLinksRequestListener());
+        }
         getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
             }
+
             @Override
             public void onScroll
                     (AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                Log.d("Dree","scroll "+firstVisibleItem+" "+visibleItemCount+" "+totalItemCount);
-                if (JsoupHelper.getGamesPageCount()!=0
-                        &&firstVisibleItem + visibleItemCount >= totalItemCount - 5
-                        &&!mIsRefreshing) {
+                Log.d("Dree", "scroll " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount);
+                if (JsoupHelper.getGamesPageCount() != 0
+                        && firstVisibleItem + visibleItemCount >= totalItemCount - 5
+                        && !mIsRefreshing) {
                     refresh();
                 }
             }
         });
     }
+
     //stopping spicemanager
     @Override
     public void onStop() {
@@ -147,7 +147,7 @@ public class GamesListFragment extends SherlockListFragment implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_refresh) {
-            if(isNetworkAvailable()){
+            if (isNetworkAvailable()) {
                 JsoupHelper.setGamesPageCount(0);
                 refresh();
             } else {
@@ -157,11 +157,9 @@ public class GamesListFragment extends SherlockListFragment implements
         }
         return super.onOptionsItemSelected(item);
     }
-    /**
-     * Create and execute request to the spiceservice
-     */
+
     private boolean refresh() {
-        if(!JsoupHelper.isLastGamesPage()){
+        if (!JsoupHelper.isLastGamesPage()) {
             getGames();
             return true;
         }
@@ -174,6 +172,7 @@ public class GamesListFragment extends SherlockListFragment implements
         mSpiceManager.execute(gms, GamesTable.TABLE, DurationInMillis.ALWAYS_EXPIRED,
                 new GamesLinksRequestListener());
     }
+
     /**
      * On row click AlarmCreatorService is started by intent with data from the cursor.
      * It sets or cancels an alarm according to the Alarm column. After click row
@@ -181,13 +180,12 @@ public class GamesListFragment extends SherlockListFragment implements
      */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-          setAlarm(position);
+        setAlarm(position);
     }
 
     private void setAlarm(int position) {
         Intent intent = new Intent(getActivity(), AlarmCreatorService.class);
         Cursor cursor = (Cursor) mSimpleCursorAdapter.getItem(position);
-        //maybe i'm gonna change it to array or find other way
         intent.putExtra(AlarmCreatorService.ALARM_EVENT, AlarmCreatorService.CLICK);
         intent.putExtra(GamesTable._ID, cursor.getInt(0));
         intent.putExtra(GamesTable.TIME, cursor.getInt(5));
@@ -195,8 +193,6 @@ public class GamesListFragment extends SherlockListFragment implements
         getActivity().startService(intent);
     }
 
-
-    //creating CursorLoader
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
         switch (loaderId) {
@@ -209,9 +205,7 @@ public class GamesListFragment extends SherlockListFragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d("Dree","loadf ");
         mSimpleCursorAdapter.swapCursor(cursor);
-        Log.d("Dree","loadf2");
 
     }
 
@@ -221,38 +215,37 @@ public class GamesListFragment extends SherlockListFragment implements
     }
 
     private void getGamesInfo() {
-        Log.d("Dreeggi", "ggi"+mGamesLinks.size() + " "+mIsRefreshing);
-        if(!mGamesLinks.isEmpty()) {
+        if (!mGamesLinks.isEmpty()) {
             GameInfoRequest gms = new GameInfoRequest(ContentValues.class, mGamesLinks.removeFirst());
-            mSpiceManager.execute(gms, "gameLinks "+mGamesLinks.size(), DurationInMillis.ALWAYS_EXPIRED,
+            mSpiceManager.execute(gms, "gameLinks " + mGamesLinks.size(), DurationInMillis.ALWAYS_EXPIRED,
                     new GameInfoRequestListener());
         } else {
             refreshAction(false);
         }
     }
+
     private final class GamesLinksRequestListener implements PendingRequestListener<LinkedList> {
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d("Dree", "reqfa ");
             refreshAction(false);
             Toast.makeText(getActivity(), "Failed to load", Toast.LENGTH_LONG).show();
         }
 
-        // deleting old data and saving new to db
         @Override
         public void onRequestSuccess(LinkedList gamesLinks) {
-            if(!gamesLinks.isEmpty()) {
+            if (!gamesLinks.isEmpty()) {
                 saveData(gamesLinks);
             }
         }
+
         private void saveData(LinkedList<String> gamesLinks) {
             mGamesLinks = gamesLinks;
-            Log.d("Dree","rewrite savdata");
-            if(JsoupHelper.getGamesPageCount()==2){
-                getActivity().getContentResolver().delete(Sc2provider.CONTENT_URI_GAMES, null, null);}
-            Log.d("Dree","incr"+JsoupHelper.getGamesPageCount());
+            if (JsoupHelper.getGamesPageCount() == 2) {
+                getActivity().getContentResolver().delete(Sc2provider.CONTENT_URI_GAMES, null, null);
+            }
             getGamesInfo();
         }
+
         public void onRequestNotFound() {
             refreshAction(false);
         }
@@ -261,25 +254,18 @@ public class GamesListFragment extends SherlockListFragment implements
     private final class GameInfoRequestListener implements PendingRequestListener<ContentValues> {
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d("Drereq", "fail");
-
             getGamesInfo();
         }
 
-        // deleting old data and saving new to db
         @Override
         public void onRequestSuccess(ContentValues contentValues) {
-            Log.d("Dreereq", "succ ");
-
             getActivity().getContentResolver().insert
-                        (Sc2provider.CONTENT_URI_GAMES, contentValues);
+                    (Sc2provider.CONTENT_URI_GAMES, contentValues);
             getGamesInfo();
         }
 
         @Override
         public void onRequestNotFound() {
-            Log.d("Drereq", "nf");
-
             getGamesInfo();
         }
     }
@@ -296,7 +282,6 @@ public class GamesListFragment extends SherlockListFragment implements
     }
 
     private void refreshAction(boolean state) {
-//        setRefreshState(state);
         mIsRefreshing = state;
         setRefreshActionButtonState();
     }
@@ -311,5 +296,4 @@ public class GamesListFragment extends SherlockListFragment implements
             }
         }
     }
-
 }

@@ -8,9 +8,9 @@ import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import com.github.andrdev.sc2gamer.database.GamesTable;
 import com.github.andrdev.sc2gamer.LogosDownloader;
 import com.github.andrdev.sc2gamer.R;
+import com.github.andrdev.sc2gamer.database.GamesTable;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -18,7 +18,8 @@ import java.util.TimeZone;
 
 public class GameRowAdapter extends SimpleCursorAdapter {
     private final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
-        LogosDownloader mThumbThread;
+    LogosDownloader mThumbThread;
+
     public GameRowAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags, LogosDownloader handler) {
         super(context, layout, c, from, to, flags);
         mSimpleDateFormat.setTimeZone(TimeZone.getDefault());
@@ -34,7 +35,7 @@ public class GameRowAdapter extends SimpleCursorAdapter {
 
     private void paintRow(View view, Cursor cursor) {
         ViewHolder viewHolder;
-        if(view.getTag() == null) {
+        if (view.getTag() == null) {
             viewHolder = new ViewHolder();
             viewHolder.text = (TextView) view.findViewById(R.id.game_start);
             viewHolder.logo1 = (ImageView) view.findViewById(R.id.team1_logo);
