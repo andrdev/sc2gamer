@@ -7,11 +7,12 @@
         android:inputType="number"
         android:dialogTitle="@string/pref_alarm_time_title"
         android:title="@string/pref_alarm_time_title"
+        android:defaultValue="false"
         android:summary="@string/pref_alarm_time_summary"/>
     <RingtonePreference
         android:key="@string/pref_alarm_sound_key"
         android:ringtoneType="all"
         android:showDefault="true"
-        android:title="@string/pref_alarm_sound_key"
+        android:title="@string/pref_alarm_sound_title"
         android:summary="@string/pref_alarm_sound_summary"/>
 </PreferenceScreen>

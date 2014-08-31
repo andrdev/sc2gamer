@@ -14,7 +14,7 @@
     <string name="pref_alarm_sound_summary">Set an alarm sound</string>
     <string name="pref_alarm_header_title">Alarm</string>
     <string name="pref_alarm_header_summary">Adjust an alarm</string>
-    <string name="buttonOk">Ok</string>
-    <string name="buttonCancel">Cancel</string>
-    <string name="buttonDefault">Default</string>
+    <string name="button_default">Default</string>
+    <string name="team_logo_desc">Team logo</string>
+
 </resources>

@@ -14,12 +14,10 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TimePicker;
 
-/**
- * Created by taiyokaze on 8/27/14.
- */
+
 public class AlarmTimePreference extends DialogPreference {
     private int number = 0;
-    private EditText mEditText = null;;
+    private EditText mEditText = null;
 
     public AlarmTimePreference(final Context context,
                                   final AttributeSet attrs) {

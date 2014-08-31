@@ -4,6 +4,9 @@ package com.github.andrdev.sc2gamer;
 import android.content.ContentValues;
 import android.util.Log;
 
+import com.github.andrdev.sc2gamer.database.GamesTable;
+import com.github.andrdev.sc2gamer.database.NewsTable;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,10 +20,9 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.*;
 
 
 public class JsoupHelper {
@@ -28,7 +30,7 @@ public class JsoupHelper {
     private static int sGamesPageTotal = 1;
     private static int sNewsPageCount = 300;
     private static int sNewsPageTotal = 1;
-    static final String GAME_SITE = "http://www.gosugamers.net";
+    public static final String GAME_SITE = "http://www.gosugamers.net";
     private static final String USER_AGENT="Mozilla";
     private static final String SCHEME = "http";
     private static final String NEWS = "news/archive";
@@ -36,7 +38,7 @@ public class JsoupHelper {
     private static final String GAMES_PAGES = "gosubet?u-page=";
 
     public static List getArticle(String link) {
-        List<ContentValues> cv = new ArrayList<ContentValues>();
+        List<ContentValues> cv = new LinkedList<ContentValues>();
         ContentValues item = new ContentValues();
         try {
             Document doc = Jsoup.connect(GAME_SITE +link).userAgent(USER_AGENT).get();
@@ -53,7 +55,7 @@ public class JsoupHelper {
     }
 
     public static  List<ContentValues> getNews() {
-        List<ContentValues> newsList = new ArrayList<ContentValues>();
+        List<ContentValues> newsList = new LinkedList<ContentValues>();
         for(int i=0;i<2;i++){
             try {
                 sGamesPageCount++;
@@ -75,13 +77,13 @@ public class JsoupHelper {
         return newsList;
     }
 
-    public static  List<ContentValues> getGames() {
-        List<ContentValues> gameList = getGameInfo(getGamesLinks());
-        return gameList;
-    }
+//    public static  List<ContentValues> getGames() {
+//        List<ContentValues> gameList = getGameInfo(getGamesLinks());
+//        return gameList;
+//    }
 
-    private static List<String> getGamesLinks() {
-        List<String> linkList = new ArrayList<String>();
+    public static LinkedList<String> getGamesLinks() {
+        LinkedList<String> linkList = new LinkedList<String>();
         Document doc = null;
         for(int i=0;i<2;i++){
         try {
@@ -102,22 +104,22 @@ public class JsoupHelper {
         return linkList;
     }
 
-    private static List<ContentValues> getGameInfo(List<String> links) {
-        List<ContentValues> gameList = new ArrayList<ContentValues>();
-        if(links.isEmpty()) {
-            return gameList;
-        }
-        for (String s : links) {
+    public static ContentValues getGameInfo(String url) {
+        Log.d("Dreggi", "st");
             Document doc = null;
             try {
-                doc = Jsoup.connect(GAME_SITE+s).userAgent(USER_AGENT).get();
+                Log.d("Dreggi", "con");
+
+                doc = Jsoup.connect(GAME_SITE+url).userAgent(USER_AGENT).get();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             ContentValues cv = new ContentValues();
             String logoLink1;
             String logoLink2;
-            cv.put(GamesTable.TEAM1_NAME, doc.select("div[class=opponent opponent1")
+        Log.d("Dreggi", "pars");
+
+        cv.put(GamesTable.TEAM1_NAME, doc.select("div[class=opponent opponent1")
                     .select("a").text());
             logoLink1 = doc.select("div[class=opponent opponent1")
                     .select("img").attr("src");
@@ -125,15 +127,17 @@ public class JsoupHelper {
                     .substring(logoLink1.lastIndexOf("/") + 1, logoLink1.length()));
             cv.put(GamesTable.TEAM2_NAME, doc.select("div[class=opponent opponent2")
                     .select("a").text());
-            logoLink2 = doc.select("div[class=opponent opponent2")
+        Log.d("Dreggi", "pars2");
+
+        logoLink2 = doc.select("div[class=opponent opponent2")
                     .select("img").attr("src");
             cv.put(GamesTable.TEAM2_LOGO, logoLink2
                     .substring(logoLink2.lastIndexOf("/")+1, logoLink2.length()));
             cv.put(GamesTable.TIME, parseTime(doc.select("p[class=datetime]").text()));
 //            cv.put(GamesTable.TEAM1_NAME, doc.select("p[class=bestof]").text());
-            gameList.add(cv);
-        }
-        return gameList;
+        Log.d("Dreggi", "ret");
+
+        return cv;
     }
 
     private static long parseTime(String time) {
@@ -196,73 +200,7 @@ public class JsoupHelper {
     }
 
 
-    private static class GetGameInfo implements Callable<List> {
-        List<String> linkList;
-        public GetGameInfo(List list) {
-            this.linkList = list;
-        }
-        @Override
-        public List<ContentValues> call() throws Exception {
-            List <ContentValues> list2 = new ArrayList<ContentValues>();
-            list2 = parseGamePageConc(linkList);
-            return list2;
-        }
-    }
 
-    private static List<ContentValues> getGameInfoConc(List<String> links) {
-        int coreNum = Runtime.getRuntime().availableProcessors();
-        int batch = links.size() / coreNum;
-        ExecutorService executor = Executors.newFixedThreadPool(coreNum);
-        List<Future> futureList = new ArrayList<Future>();
-        int x = 1;
-
-        do {
-            futureList.add(executor.submit(new GetGameInfo(links.subList(batch * (x - 1), batch * x))));
-            System.out.print(batch * (x - 1) + " " + batch * x);
-            x++;
-            if (x == coreNum) {
-//                parseGamePageConc = futureList.add(executor.submit
-//                        (new GetGameInfo(links.subList(batch * (x - 1), links.size()))));
-                System.out.print(batch + " " + (batch * (x - 1)) + " " + links.size());
-                x++;
-            }
-        } while (x < coreNum + 1);
-
-        List<ContentValues> gameList = new ArrayList<ContentValues>();
-        for (Future<ArrayList> f : futureList) {
-            try {
-                 gameList.addAll(f.get());
-            } catch (InterruptedException e) {
-                Log.e("Jsoup", "error interupted getGameInfo", e);
-            } catch (ExecutionException e) {
-                Log.e("Jsoup", "error retrieving from interupted getGameInfo", e);
-            }
-        }
-        executor.shutdown();
-        return gameList;
-    }
-
-    private static List <ContentValues> parseGamePageConc(List<String> list) {
-        List <ContentValues> list2 = new ArrayList<ContentValues>();
-        for (String s : list) {
-            try {
-                Document doc = Jsoup.connect(GAME_SITE + s).userAgent(USER_AGENT).timeout(10 * 10000).get();
-                ContentValues cv = new ContentValues();
-                cv.put(GamesTable.TEAM1_NAME, doc.select("div[class=opponent opponent1").select("a").text());
-                Log.d("DREE-Jsoup", doc.select("div[class=opponent opponent1").select("a").text());
-
-                cv.put(GamesTable.TEAM1_LOGO, doc.select("div[class=opponent opponent1").select("src").text());
-                cv.put(GamesTable.TEAM2_NAME, doc.select("div[class=opponent opponent2").select("a").text());
-                cv.put(GamesTable.TEAM2_LOGO, doc.select("div[class=opponent opponent2").select("src").text());
-                cv.put(GamesTable.TIME, parseTime(doc.select("p[class=datetime]").text()));
-//              cv.put(GamesTable.TEAM1_NAME, doc.select("p[class=bestof]").text());
-                list2.add(cv);
-            } catch (IOException ioe) {
-                Log.e("Jsoup", "error parseGamePageConc", ioe);
-              }
-            }
-            return list2;
-        }
 }
 
 

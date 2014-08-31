@@ -19,9 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by taiyokaze on 8/22/14.
- */
+
 public class LogosDownloader extends HandlerThread {
     private static final String TAG = "ThumbDownloader";
     private static final int MESSAGE_DOWNLOAD = 0;
@@ -63,11 +61,11 @@ public class LogosDownloader extends HandlerThread {
             Log.i(TAG, "file " + file.toString());
             if(file.createNewFile()){
             byte[] bitmapBytes = JsoupHelper.getPhoto(IMAGE_URL + "/" + url);
-            FileOutputStream fileout = new FileOutputStream(file);
-            fileout.write(bitmapBytes);
-            fileout.flush();
-            fileout.getFD().sync();
-            fileout.close();}
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(bitmapBytes);
+            fileOutputStream.flush();
+            fileOutputStream.getFD().sync();
+            fileOutputStream.close();}
             Log.i("file1", "file1 " + Arrays.toString(mCacheFolder.listFiles()));
             final Bitmap bitmap = BitmapFactory
                       .decodeFile(file.toString());

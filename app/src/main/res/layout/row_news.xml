@@ -11,8 +11,11 @@
             android:id="@+id/news_title"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:textSize="@dimen/row_text"
+            android:paddingStart="@dimen/news_padding_border"
             android:paddingLeft="@dimen/news_padding_border"
+            android:paddingRight="@dimen/news_padding_border"
             android:gravity="center_vertical"
             android:text="@string/def_title"/>
 </RelativeLayout>
