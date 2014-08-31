@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sc2Gamer</string>
+    <string name="fulltext">more</string>
+    <string name="menu_refresh">Refresh</string>
+    <string name="menu_settings">Settings</string>
+    <string name="def_title">Title</string>
+    <string name="pref_alarm_time_key">pref_alarm_time</string>
+    <string name="pref_alarm_time_def_val">0</string>
+    <string name="pref_alarm_time_title">Early Alarm</string>
+    <string name="pref_alarm_time_summary">Make an alarm to go off earlier</string>
+    <string name="pref_alarm_sound_key">pref_alarm_sound</string>
+    <string name="pref_alarm_sound_title">Alarm Sound</string>
+    <string name="pref_alarm_sound_summary">Set an alarm sound</string>
+    <string name="pref_alarm_header_title">Alarm</string>
+    <string name="pref_alarm_header_summary">Adjust an alarm</string>
+    <string name="button_default">Default</string>
+    <string name="team_logo_desc">Team logo</string>
+
+</resources>

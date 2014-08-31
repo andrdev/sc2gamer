@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:empub="http://schemas.android.com/apk/res-auto">
+    <EditTextPreference
+        android:key="@string/pref_alarm_time_key"
+        android:hint="minutes"
+        android:inputType="number"
+        android:dialogTitle="@string/pref_alarm_time_title"
+        android:title="@string/pref_alarm_time_title"
+        android:defaultValue="false"
+        android:summary="@string/pref_alarm_time_summary"/>
+    <RingtonePreference
+        android:key="@string/pref_alarm_sound_key"
+        android:ringtoneType="all"
+        android:showDefault="true"
+        android:title="@string/pref_alarm_sound_title"
+        android:summary="@string/pref_alarm_sound_summary"/>
+</PreferenceScreen>

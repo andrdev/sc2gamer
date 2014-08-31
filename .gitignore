@@ -1,0 +1,27 @@
+# Android
+*.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+local.properties
+proguard/
+*.log
+
+# Gradle
+.gradle
+build/
+gradle-app.setting
+
+# Idea
+/local.properties
+.idea/
+/*.iml
+/.idea/libraries
+.DS_Store
+*.ipr
+*.iws
+.idea_modules/
+atlassian-ide-plugin.xml
+com_crashlytics_export_strings.xml
