@@ -13,8 +13,8 @@ import com.github.andrdev.sc2gamer.service.AlarmCreatorService;
 public class BootAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Intent in = new Intent(context, AlarmCreatorService.class);
-        in.putExtra(AlarmCreatorService.ALARM_EVENT, AlarmCreatorService.BOOT);
-        context.startService(in);
+        Intent serviceIntent = new Intent(context, AlarmCreatorService.class);
+        serviceIntent.putExtra(AlarmCreatorService.ALARM_EVENT, AlarmCreatorService.BOOT);
+        context.startService(serviceIntent);
     }
 }

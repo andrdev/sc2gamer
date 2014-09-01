@@ -3,14 +3,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/def_height"
-                android:layout_margin="@dimen/def_space"
-                android:padding="@dimen/def_space">
+                android:layout_margin="@dimen/def_space">
     <ImageView
-        android:id="@+id/team1_logo"
-        android:contentDescription="@string/team_logo_desc"
-        android:layout_width="@dimen/game_row_logo_width"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"/>
+            android:id="@+id/team1_logo"
+            style="@style/LogoStyle"/>
     <TextView
             android:id="@+id/team1_name"
             android:layout_weight="4"
@@ -31,8 +27,5 @@
             style="@style/DefTextStyle"/>
     <ImageView
             android:id="@+id/team2_logo"
-            android:contentDescription="@string/team_logo_desc"
-            android:layout_width="@dimen/game_row_logo_width"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"/>
+            style="@style/LogoStyle"/>
 </LinearLayout>

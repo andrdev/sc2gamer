@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -13,43 +12,46 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.adapter.PagerTabAdapter;
+import com.github.andrdev.sc2gamer.database.GamesTable;
 import com.github.andrdev.sc2gamer.database.NewsTable;
 import com.github.andrdev.sc2gamer.fragment.ArticleFragment;
 import com.github.andrdev.sc2gamer.fragment.GamesListFragment;
 import com.github.andrdev.sc2gamer.fragment.NewsListFragment;
 import com.github.andrdev.sc2gamer.fragment.TabsFragment;
 
-
+/**
+ * Main launcher activity
+ */
 public class MainActivity extends SherlockFragmentActivity implements
         TabsFragment.TabsCallbacks, NewsListFragment.NewsCallbacks {
 
     private ViewPager mPager;
     private FragmentManager mFragmentManager;
 
-    /**
-     * Called when the activity is first created.
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         mFragmentManager = getSupportFragmentManager();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_info);
         if (mFragmentManager.findFragmentById(R.id.fragmentMain) == null) {
-            if (findViewById(R.id.fragmentDetail) == null) {
-                mPager = (ViewPager) findViewById(R.id.pager);
-                mPager.setAdapter(new PagerTabAdapter(mFragmentManager));
-            } else {
-                mFragmentManager.beginTransaction()
-                        .add(R.id.fragmentMain, new TabsFragment())
-                        .commit();
-                if (mFragmentManager.findFragmentById(R.id.fragmentDetail) == null) {
-                    loadDetailsFragment(0);
-                }
-            }
-            Log.d("dree act", "cr");
+            loadMainFragment();
         }
     }
 
+    //loading fragments according to screen size
+    private void loadMainFragment(){
+        if (findViewById(R.id.fragmentDetail) == null) {
+            mPager = (ViewPager) findViewById(R.id.pager);
+            mPager.setAdapter(new PagerTabAdapter(mFragmentManager));
+        } else {
+            mFragmentManager.beginTransaction()
+                    .add(R.id.fragmentMain, new TabsFragment())
+                    .commit();
+            if (mFragmentManager.findFragmentById(R.id.fragmentDetail) == null) {
+                loadDetailsFragment(0);
+            }
+        }
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.menu, menu);
@@ -57,19 +59,30 @@ public class MainActivity extends SherlockFragmentActivity implements
     }
 
     @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        if (item.getItemId() == R.id.menu_preference) {
+            Intent intent = new Intent(this, PreferenceActivity.class);
+            startActivity(intent);
+        }
+        return super.onMenuItemSelected(featureId, item);
+    }
+
+    //Callback method from TabsFragment
+    @Override
     public void loadDetailsFragment(int position) {
         SherlockListFragment fragment;
         String tag;
         if (position == 0) {
             fragment = new GamesListFragment();
-            tag = "Games";
+            tag = GamesTable.TABLE;
         } else {
             fragment = new NewsListFragment();
-            tag = "News";
+            tag = NewsTable.TABLE;
         }
         mFragmentManager.beginTransaction().replace(R.id.fragmentDetail, fragment, tag).commit();
     }
 
+    //Callback method from NewsFragment. Loading article accordingly to the user choice and screen size
     @Override
     public void loadArticle(String articleLink) {
         String tag = "Article";
@@ -80,20 +93,11 @@ public class MainActivity extends SherlockFragmentActivity implements
             startActivity(i);
         } else {
             Bundle bundle = new Bundle();
-            bundle.putString("Link", articleLink);
+            bundle.putString(NewsTable.LINK, articleLink);
             fragment = new ArticleFragment();
             fragment.setArguments(bundle);
             mFragmentManager.beginTransaction()
                     .replace(R.id.fragmentDetail, fragment, tag).commit();
         }
-    }
-
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        if (item.getItemId() == R.id.menu_preference) {
-            Intent intent = new Intent(this, PreferenceActivity.class);
-            startActivity(intent);
-        }
-        return super.onMenuItemSelected(featureId, item);
     }
 }

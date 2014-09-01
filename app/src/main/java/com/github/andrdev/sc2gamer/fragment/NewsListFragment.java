@@ -26,14 +26,14 @@ import com.github.andrdev.sc2gamer.JsoupHelper;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.database.NewsTable;
 import com.github.andrdev.sc2gamer.database.Sc2provider;
-import com.github.andrdev.sc2gamer.request.Sc2spiceRequest;
+import com.github.andrdev.sc2gamer.request.NewsListRequest;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.UncachedSpiceService;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.PendingRequestListener;
 
-import java.util.List;
+import java.util.LinkedList;
 
 /**
  * NewsListFragment
@@ -51,13 +51,18 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     private NewsCallbacks mNewsCallbacks;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mSimpleCursorAdapter = new SimpleCursorAdapter
                 (getActivity(), R.layout.row_news, null, mNewsColumns, mNewsFields, 0);
         setListAdapter(mSimpleCursorAdapter);
+        getSherlockActivity().getSupportLoaderManager().initLoader(mLoaderId, null, this);
         setHasOptionsMenu(true);
-        getLoaderManager().initLoader(mLoaderId, null, this);
-        setRetainInstance(true);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -77,9 +82,9 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     @Override
     public void onStart() {
         super.onStart();
-        mSpiceManager.start(getActivity());
+        mSpiceManager.start(getSherlockActivity());
         mSpiceManager.addListenerIfPending
-                (List.class, NewsTable.TABLE, new NewsListRequestListener());
+                (LinkedList.class, NewsTable.TABLE, new NewsListRequestListener());
         getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -88,7 +93,9 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
             @Override
             public void onScroll
                     (AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem + visibleItemCount >= totalItemCount - 5 && !mIsRefreshing) {
+                if (JsoupHelper.getNewsPageCount() != 0
+                        && firstVisibleItem + visibleItemCount >= totalItemCount - 5
+                        && !mIsRefreshing) {
                     refresh();
                 }
             }
@@ -110,21 +117,20 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
                 JsoupHelper.setNewsPageCount(0);
                 refresh();
             } else {
-                Toast.makeText(getActivity(), "Check network connection.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getSherlockActivity(), "Check network connection.", Toast.LENGTH_LONG).show();
             }
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean refresh() {
+    private void refresh() {
         if (!JsoupHelper.isLastNewsPage()) {
             refreshAction(true);
-            Sc2spiceRequest gms = new Sc2spiceRequest(NewsTable.TABLE);
-            mSpiceManager.execute(gms, NewsTable.TABLE, DurationInMillis.ALWAYS_EXPIRED, new NewsListRequestListener());
-            return true;
+            NewsListRequest gms = new NewsListRequest(LinkedList.class);
+            mSpiceManager.execute
+                    (gms, NewsTable.TABLE, DurationInMillis.ALWAYS_EXPIRED, new NewsListRequestListener());
         }
-        return false;
     }
 
     @Override
@@ -132,7 +138,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
         if (isNetworkAvailable()) {
             loadArticle(position);
         } else {
-            Toast.makeText(getActivity(), "Check network connection.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getSherlockActivity(), "Check network connection.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -146,7 +152,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         switch (i) {
             case mLoaderId:
-                return new CursorLoader(getActivity(), Sc2provider.CONTENT_URI_NEWS, null, null, null, null);
+                return new CursorLoader(getSherlockActivity(), Sc2provider.CONTENT_URI_NEWS, null, null, null, null);
             default:
                 return null;
         }
@@ -162,25 +168,25 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
         mSimpleCursorAdapter.swapCursor(null);
     }
 
-    private class NewsListRequestListener implements PendingRequestListener<List> {
+    private class NewsListRequestListener implements PendingRequestListener<LinkedList> {
         @Override
         public void onRequestFailure(SpiceException e) {
             refreshAction(false);
         }
 
         @Override
-        public void onRequestSuccess(List contentValues) {
+        public void onRequestSuccess(LinkedList contentValues) {
             if (contentValues.size() > 0) {
                 saveData(contentValues);
             }
             refreshAction(false);
         }
 
-        private void saveData(List<ContentValues> contentValues) {
-            if (JsoupHelper.getNewsPageCount() == 0) {
-                getActivity().getContentResolver().delete(Sc2provider.CONTENT_URI_NEWS, null, null);
+        private void saveData(LinkedList<ContentValues> contentValues) {
+            if (JsoupHelper.getNewsPageCount() == 2) {
+                getSherlockActivity().getContentResolver().delete(Sc2provider.CONTENT_URI_NEWS, null, null);
             }
-            getActivity().getContentResolver().bulkInsert
+            getSherlockActivity().getContentResolver().bulkInsert
                     (Sc2provider.CONTENT_URI_NEWS, contentValues.toArray(new ContentValues[contentValues.size()]));
         }
 

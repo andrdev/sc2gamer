@@ -157,7 +157,7 @@ public class Sc2provider extends ContentProvider {
         switch (MATCHER.match(uri)) {
             case GAMES_LIST:
                 db.delete(GamesTable.TABLE, GamesTable.ALARM + " = ? OR "
-                        + GamesTable.TIME + " > ?", new String[]{"false", "STRFTIME(%s, 'now')"});
+                        + GamesTable.TIME + " < ?", new String[]{"false", "STRFTIME(%s, 'now')"});
                 break;
             case GAMES_ALARM:
                 break;

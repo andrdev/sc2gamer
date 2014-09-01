@@ -28,7 +28,7 @@ public class TabsFragment extends SherlockListFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, mFragmentsList);
+        adapter = new ArrayAdapter(getSherlockActivity(), android.R.layout.simple_list_item_1, mFragmentsList);
         setListAdapter(adapter);
     }
 

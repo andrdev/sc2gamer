@@ -11,7 +11,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,7 +112,7 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
         switch (loaderId) {
             case 1:
-                return new CursorLoader(getActivity(), getUri(), null, null, null, null);
+                return new CursorLoader(getSherlockActivity(), getUri(), null, null, null, null);
             default:
                 return null;
         }
@@ -144,9 +143,9 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
 
         private void saveData(List<ContentValues> contentValues) {
             if (isFirstPage()) {
-                getActivity().getContentResolver().delete(getUri(), null, null);
+                getSherlockActivity().getContentResolver().delete(getUri(), null, null);
             }
-            getActivity().getContentResolver().bulkInsert(getUri(), contentValues.toArray(new ContentValues[contentValues.size()]));
+            getSherlockActivity().getContentResolver().bulkInsert(getUri(), contentValues.toArray(new ContentValues[contentValues.size()]));
         }
 
         @Override
@@ -161,7 +160,7 @@ abstract class BaseTabFragment extends SherlockListFragment implements LoaderMan
 
     private boolean isNetworkAvailable() {
         ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) getSherlockActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             return true;

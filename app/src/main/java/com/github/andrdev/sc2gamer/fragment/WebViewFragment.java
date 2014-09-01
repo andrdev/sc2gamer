@@ -24,7 +24,7 @@ abstract class WebViewFragment extends SherlockFragment {
         if (mWebView != null) {
             mWebView.destroy();
         }
-        mWebView = new WebView(getActivity());
+        mWebView = new WebView(getSherlockActivity());
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebViewClient(new WebViewClient() {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {

@@ -19,47 +19,51 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.database.GamesTable;
 import com.github.andrdev.sc2gamer.database.Sc2provider;
+import com.github.andrdev.sc2gamer.service.AlarmCreatorService;
 
 import java.io.File;
 import java.io.IOException;
 
-
+/**
+ *
+ */
 public class AlarmDialogActivity extends SherlockActivity {
-    TextView mTeamName1;
-    TextView mTeamName2;
-    ImageView mTeamLogo1;
-    ImageView mTeamLogo2;
-    File mImageFolder;
-    Button mOk;
-    MediaPlayer mMediaPlayer;
+    private TextView mTeamName1;
+    private TextView mTeamName2;
+    private ImageView mTeamLogo1;
+    private ImageView mTeamLogo2;
+    private File mImageFolder;
+    private Button mOk;
+    private MediaPlayer mMediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alarm_dialog);
-        init();
-        populate();
+        initialize();
+        populateViews();
         startSound();
     }
 
-    void init() {
-        mTeamName1 = (TextView) findViewById(R.id.dialogName1);
-        mTeamName2 = (TextView) findViewById(R.id.dialogName2);
-        mTeamLogo1 = (ImageView) findViewById(R.id.dialogLogo1);
-        mTeamLogo2 = (ImageView) findViewById(R.id.dialogLogo2);
-        mOk = (Button) findViewById(R.id.buttonAlert);
+    void initialize() {
+        mTeamName1 = (TextView) findViewById(R.id.dialogAlarmTeamName1);
+        mTeamName2 = (TextView) findViewById(R.id.dialogAlarmTeamName2);
+        mTeamLogo1 = (ImageView) findViewById(R.id.dialogAlarmTeamLogo1);
+        mTeamLogo2 = (ImageView) findViewById(R.id.dialogAlarmTeamLogo2);
+        mOk = (Button) findViewById(R.id.dialogAlarmButtonOk);
         mOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mMediaPlayer.stop();
+                mMediaPlayer.reset();
                 mMediaPlayer.release();
                 finish();
             }
         });
     }
 
-    void populate() {
-        String alarmId = String.valueOf(getIntent().getIntExtra("AlarmId", 1));
+    void populateViews() {
+        String alarmId = String.valueOf(getIntent().getIntExtra(AlarmCreatorService.ALARM_ID, 1));
         mImageFolder = this.getCacheDir();
         Cursor cursor = this.getContentResolver().query(Sc2provider.CONTENT_URI_ALARMS,
                 null, GamesTable._ID + " = ?", new String[]{alarmId}, null);

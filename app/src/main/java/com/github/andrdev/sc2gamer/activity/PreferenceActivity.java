@@ -9,6 +9,8 @@ import com.github.andrdev.sc2gamer.R;
 
 import java.util.List;
 
+/**
+ * Displaying preference. Using PreferenceHeaders only on newer versions.*/
 public class PreferenceActivity extends SherlockPreferenceActivity {
     @SuppressWarnings("deprecation")
     @Override

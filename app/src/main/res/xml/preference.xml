@@ -11,7 +11,7 @@
     <RingtonePreference
         android:key="@string/pref_alarm_sound_key"
         android:ringtoneType="all"
-        android:showDefault="true"
+        android:showSilent="false"
         android:title="@string/pref_alarm_sound_title"
         android:summary="@string/pref_alarm_sound_summary"/>
 </PreferenceScreen>

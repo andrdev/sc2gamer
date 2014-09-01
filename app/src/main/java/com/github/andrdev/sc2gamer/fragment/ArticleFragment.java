@@ -12,14 +12,15 @@ import com.github.andrdev.sc2gamer.database.NewsTable;
 public class ArticleFragment extends WebViewFragment {
     private String mArticleText;
     private String mLink;
+    public final static int mLoaderId = 3;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mLink = getActivity().getIntent().getStringExtra(NewsTable.LINK);
+        mLink = getSherlockActivity().getIntent().getStringExtra(NewsTable.LINK);
         if (mLink == null) {
-            mLink = getArguments().getString("Link");
+            mLink = getArguments().getString(NewsTable.LINK);
         }
     }
 

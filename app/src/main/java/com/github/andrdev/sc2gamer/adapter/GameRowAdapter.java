@@ -15,7 +15,9 @@ import com.github.andrdev.sc2gamer.database.GamesTable;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
-
+/**
+ * Cursor adapter for GamesListFragment.
+ */
 public class GameRowAdapter extends SimpleCursorAdapter {
     private final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
     LogosDownloader mThumbThread;
@@ -33,6 +35,7 @@ public class GameRowAdapter extends SimpleCursorAdapter {
         paintRow(view, cursor);
     }
 
+
     private void paintRow(View view, Cursor cursor) {
         ViewHolder viewHolder;
         if (view.getTag() == null) {
@@ -46,7 +49,7 @@ public class GameRowAdapter extends SimpleCursorAdapter {
         }
         mThumbThread.queueThumbnail(viewHolder.logo1, cursor.getString(2));
         mThumbThread.queueThumbnail(viewHolder.logo2, cursor.getString(4));
-        viewHolder.text.setText(mSimpleDateFormat.format(cursor.getLong(5)));
+        viewHolder.text.setText(mSimpleDateFormat.format(cursor.getLong(5)*1000));
         if (cursor.getString(6).equals(GamesTable.SET_ALARM)) {
             view.setBackgroundColor(0xff550000);
         } else {

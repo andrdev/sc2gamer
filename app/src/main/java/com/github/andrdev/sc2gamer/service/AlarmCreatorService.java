@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.github.andrdev.sc2gamer.database.GamesTable;
@@ -26,8 +25,8 @@ public class AlarmCreatorService extends IntentService {
     public final static String ALARM_EVENT = "alarm_event";
     private AlarmManager alarmManager;
     private Intent alarmIntent;
-
-
+    public final static String ALARM_ID = "alarmId";
+    public final static String ALARM_TIME_PREF ="pref_alarm_time";
     public AlarmCreatorService() {
         super("AlarmCreatorService");
     }
@@ -87,16 +86,17 @@ public class AlarmCreatorService extends IntentService {
     }
 
     // sending alarm intent, only if alarmtime > current time
-    private void setAlarm(int id, int time) {
+    private void setAlarm(int id, int gameTime) {
         String earlyAlarmPreference = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("pref_alarm_time", "0");
+                .getString(ALARM_TIME_PREF, "0");
         long earlyAlarmTime = 0;
         if (!earlyAlarmPreference.isEmpty()) {
             earlyAlarmTime = 60 * 1000 * Integer.valueOf(earlyAlarmPreference);
         }
-        long alarmTime = 1000 + System.currentTimeMillis();
+//        long alarmTime = 1000 + System.currentTimeMillis();
+          long alarmTime = gameTime * 1000 + earlyAlarmTime;
         if (alarmTime > System.currentTimeMillis()) {
-            alarmIntent.putExtra("AlarmId", id);
+            alarmIntent.putExtra(ALARM_ID, id);
             PendingIntent pi = PendingIntent.getBroadcast
                     (this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime, pi);

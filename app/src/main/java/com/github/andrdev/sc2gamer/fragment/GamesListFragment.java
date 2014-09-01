@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,9 +37,7 @@ import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.PendingRequestListener;
 
-import java.text.SimpleDateFormat;
 import java.util.LinkedList;
-import java.util.TimeZone;
 
 /**
  * GameListFragment is a ListFragment that loads data from internet and db asynchronously.
@@ -56,34 +53,33 @@ import java.util.TimeZone;
 public class GamesListFragment extends SherlockListFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private final int mLoaderId = 2;
+    private final static int mLoaderId = 2;
     private final String[] mGamesColumns = {GamesTable.TEAM1_NAME, GamesTable.TEAM2_NAME, GamesTable.TIME};
     private final int[] mGamesFields = {R.id.team1_name, R.id.team2_name, R.id.game_start};
 
     private final SpiceManager mSpiceManager = new SpiceManager(UncachedSpiceService.class);
-    private final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
+    private static final String GAMES_CACHEREQUEST_ID = "gameLinks";
     private boolean mIsRefreshing = false;
-    private GameRowAdapter mSimpleCursorAdapter;
+    private GameRowAdapter mGameRowAdapter;
     private MenuItem mRefreshButton;
-    private LogosDownloader mThumbThread;
+    private LogosDownloader mLogosThread;
     private LinkedList<String> mGamesLinks = new LinkedList<String>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mSimpleDateFormat.setTimeZone(TimeZone.getDefault());
-        mThumbThread = new LogosDownloader(new Handler(), getActivity().getCacheDir());
-        mThumbThread.start();
+        mLogosThread = new LogosDownloader(new Handler(), getSherlockActivity().getCacheDir());
+        mLogosThread.start();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mSimpleCursorAdapter = new GameRowAdapter
-                (getActivity(), R.layout.row_game, null, mGamesColumns, mGamesFields, 0, mThumbThread);
-        setListAdapter(mSimpleCursorAdapter);
+        getSherlockActivity().getSupportLoaderManager().initLoader(mLoaderId, null, this);
+        mGameRowAdapter = new GameRowAdapter
+                (getSherlockActivity(), R.layout.row_game, null, mGamesColumns, mGamesFields, 0, mLogosThread);
+        setListAdapter(mGameRowAdapter);
         setHasOptionsMenu(true);
-        getLoaderManager().initLoader(mLoaderId, null, this);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -97,10 +93,10 @@ public class GamesListFragment extends SherlockListFragment implements
     @Override
     public void onStart() {
         super.onStart();
-        mSpiceManager.start(getActivity());
+        mSpiceManager.start(getSherlockActivity());
         if (!mGamesLinks.isEmpty()) {
             mSpiceManager.addListenerIfPending
-                    (ContentValues.class, "gameLinks " + mGamesLinks.size(), new GameInfoRequestListener());
+                    (ContentValues.class, GAMES_CACHEREQUEST_ID + mGamesLinks.size(), new GameInfoRequestListener());
         } else {
             mSpiceManager.addListenerIfPending
                     (LinkedList.class, GamesTable.TABLE, new GamesLinksRequestListener());
@@ -113,9 +109,8 @@ public class GamesListFragment extends SherlockListFragment implements
             @Override
             public void onScroll
                     (AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                Log.d("Dree", "scroll " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount);
                 if (JsoupHelper.getGamesPageCount() != 0
-                        && firstVisibleItem + visibleItemCount >= totalItemCount - 5
+                        && firstVisibleItem + visibleItemCount >= totalItemCount - 10
                         && !mIsRefreshing) {
                     refresh();
                 }
@@ -123,7 +118,6 @@ public class GamesListFragment extends SherlockListFragment implements
         });
     }
 
-    //stopping spicemanager
     @Override
     public void onStop() {
         if (mSpiceManager.isStarted()) {
@@ -135,13 +129,13 @@ public class GamesListFragment extends SherlockListFragment implements
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mThumbThread.clearQueue();
+//        mLogosThread.clearQueue();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mThumbThread.quit();
+//        mLogosThread.quit();
     }
 
     @Override
@@ -151,19 +145,17 @@ public class GamesListFragment extends SherlockListFragment implements
                 JsoupHelper.setGamesPageCount(0);
                 refresh();
             } else {
-                Toast.makeText(getActivity(), "Check network connection.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getSherlockActivity(), "Check network connection.", Toast.LENGTH_SHORT).show();
             }
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean refresh() {
+    private void refresh() {
         if (!JsoupHelper.isLastGamesPage()) {
             getGames();
-            return true;
         }
-        return false;
     }
 
     private void getGames() {
@@ -184,20 +176,20 @@ public class GamesListFragment extends SherlockListFragment implements
     }
 
     private void setAlarm(int position) {
-        Intent intent = new Intent(getActivity(), AlarmCreatorService.class);
-        Cursor cursor = (Cursor) mSimpleCursorAdapter.getItem(position);
+        Intent intent = new Intent(getSherlockActivity(), AlarmCreatorService.class);
+        Cursor cursor = (Cursor) mGameRowAdapter.getItem(position);
         intent.putExtra(AlarmCreatorService.ALARM_EVENT, AlarmCreatorService.CLICK);
         intent.putExtra(GamesTable._ID, cursor.getInt(0));
         intent.putExtra(GamesTable.TIME, cursor.getInt(5));
         intent.putExtra(GamesTable.ALARM, cursor.getString(6));
-        getActivity().startService(intent);
+        getSherlockActivity().startService(intent);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
         switch (loaderId) {
             case mLoaderId:
-                return new CursorLoader(getActivity(), Sc2provider.CONTENT_URI_GAMES, null, null, null, null);
+                return new CursorLoader(getSherlockActivity(), Sc2provider.CONTENT_URI_GAMES, null, null, null, null);
             default:
                 return null;
         }
@@ -205,19 +197,18 @@ public class GamesListFragment extends SherlockListFragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mSimpleCursorAdapter.swapCursor(cursor);
-
+        mGameRowAdapter.swapCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mSimpleCursorAdapter.swapCursor(null);
+        mGameRowAdapter.swapCursor(null);
     }
 
     private void getGamesInfo() {
         if (!mGamesLinks.isEmpty()) {
             GameInfoRequest gms = new GameInfoRequest(ContentValues.class, mGamesLinks.removeFirst());
-            mSpiceManager.execute(gms, "gameLinks " + mGamesLinks.size(), DurationInMillis.ALWAYS_EXPIRED,
+            mSpiceManager.execute(gms, GAMES_CACHEREQUEST_ID + mGamesLinks.size(), DurationInMillis.ALWAYS_EXPIRED,
                     new GameInfoRequestListener());
         } else {
             refreshAction(false);
@@ -228,20 +219,22 @@ public class GamesListFragment extends SherlockListFragment implements
         @Override
         public void onRequestFailure(SpiceException e) {
             refreshAction(false);
-            Toast.makeText(getActivity(), "Failed to load", Toast.LENGTH_LONG).show();
+            Toast.makeText(getSherlockActivity(), "Failed to load", Toast.LENGTH_LONG).show();
         }
 
         @Override
         public void onRequestSuccess(LinkedList gamesLinks) {
             if (!gamesLinks.isEmpty()) {
                 saveData(gamesLinks);
+            } else {
+                refreshAction(false);
             }
         }
 
         private void saveData(LinkedList<String> gamesLinks) {
             mGamesLinks = gamesLinks;
             if (JsoupHelper.getGamesPageCount() == 2) {
-                getActivity().getContentResolver().delete(Sc2provider.CONTENT_URI_GAMES, null, null);
+                getSherlockActivity().getContentResolver().delete(Sc2provider.CONTENT_URI_GAMES, null, null);
             }
             getGamesInfo();
         }
@@ -259,7 +252,7 @@ public class GamesListFragment extends SherlockListFragment implements
 
         @Override
         public void onRequestSuccess(ContentValues contentValues) {
-            getActivity().getContentResolver().insert
+            getSherlockActivity().getContentResolver().insert
                     (Sc2provider.CONTENT_URI_GAMES, contentValues);
             getGamesInfo();
         }
@@ -273,7 +266,7 @@ public class GamesListFragment extends SherlockListFragment implements
     // checking internet connection
     private boolean isNetworkAvailable() {
         ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) getSherlockActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             return true;

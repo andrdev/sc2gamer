@@ -22,43 +22,38 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 
 
 public class JsoupHelper {
     private static int sGamesPageCount = 0;
     private static int sGamesPageTotal = 1;
-    private static int sNewsPageCount = 300;
-    private static int sNewsPageTotal = 1;
+    private static int sNewsPageCount = 0;
+    private static int sNewsPageTotal = 200;
     public static final String GAME_SITE = "http://www.gosugamers.net";
     private static final String USER_AGENT = "Mozilla";
     private static final String SCHEME = "http";
     private static final String NEWS = "news/archive";
     private static final String GAME = "dota2";
     private static final String GAMES_PAGES = "gosubet?u-page=";
+    private static final DateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy 'at' HH:mm z");
 
-    public static List getArticle(String link) {
-        List<ContentValues> cv = new LinkedList<ContentValues>();
-        ContentValues item = new ContentValues();
+    public static String getArticle(String link) {
+        String article = "";
         try {
             Document doc = Jsoup.connect(GAME_SITE + link).userAgent(USER_AGENT).get();
             Elements elements = doc.select("div[class=text clearfix").select("p");
-//            for (Element e : elements) {
-//                e.select("img").remove().append("/n").prepend("/n");
-//            }
-            item.put("ARTICLE", elements.html());
+            article = elements.html();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        cv.add(item);
-        return cv;
+        return article;
     }
 
-    public static List<ContentValues> getNews() {
-        List<ContentValues> newsList = new LinkedList<ContentValues>();
+    public static LinkedList<ContentValues> getNews() {
+        LinkedList<ContentValues> newsList = new LinkedList<ContentValues>();
         for (int i = 0; i < 2; i++) {
             try {
-                sGamesPageCount++;
+                sNewsPageCount++;
                 Document doc = Jsoup.connect(GAME_SITE + "/" + GAME + "/" + NEWS).userAgent(USER_AGENT).get();
                 Elements elements = doc.select("table[class=simple gamelist medium")
                         .select("tbody").select("tr");
@@ -66,9 +61,7 @@ public class JsoupHelper {
                 for (Element e : elements) {
                     row = new ContentValues();
                     row.put(NewsTable.TITLE, e.select("a").get(0).text()); //title
-                    row.put(NewsTable.LINK, e.select("a").attr("href")); //mLink
-//                Document doc2 = Jsoup.connect("http://www.gosugamers.net" + news.getLink()).userAgent("Mozilla").get();
-//                news.setShortArticle(doc2.select("div[class=text clearfix").select("p").get(1).select("strong").text());
+                    row.put(NewsTable.LINK, e.select("a").attr("href")); //link
                     newsList.add(row);
                 }
             } catch (IOException e) {
@@ -78,22 +71,17 @@ public class JsoupHelper {
         return newsList;
     }
 
-//    public static  List<ContentValues> getGames() {
-//        List<ContentValues> gameList = getGameInfo(getGamesLinks());
-//        return gameList;
-//    }
-
     public static LinkedList<String> getGamesLinks() {
         LinkedList<String> linkList = new LinkedList<String>();
-        Document doc = null;
         for (int i = 0; i < 2; i++) {
+            Document doc = null;
             try {
                 sGamesPageCount++;
                 doc = Jsoup.connect(GAME_SITE + "/" + GAME + "/" + GAMES_PAGES + sGamesPageCount)
                         .userAgent(USER_AGENT).get();
-                Elements e1 = doc.select("div[class=box").get(1).select("div[class=pages").select("a");
-                String s = e1.last().attr("href");
+                Elements elements = doc.select("div[class=box").get(1).select("div[class=pages").select("a");
                 if (sGamesPageCount == sGamesPageTotal) {
+                    String s = elements.last().attr("href");
                     sGamesPageTotal = Integer.valueOf(s.substring(s.lastIndexOf('=') + 1, s.length()));
                 }
             } catch (IOException e) {
@@ -131,25 +119,22 @@ public class JsoupHelper {
         cv.put(GamesTable.TEAM2_LOGO, logoLink2
                 .substring(logoLink2.lastIndexOf("/") + 1, logoLink2.length()));
         cv.put(GamesTable.TIME, parseTime(doc.select("p[class=datetime]").text()));
-//            cv.put(GamesTable.TEAM1_NAME, doc.select("p[class=bestof]").text());
         return cv;
     }
 
     private static long parseTime(String time) {
-        DateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy 'at' HH:mm z");
         Date gameTime = new Date();
         try {
             gameTime = simpleDateFormat.parse(time + " CEST");
         } catch (ParseException e) {
             Log.e("JsoupHelper", "error parsing time", e);
         }
-        return gameTime.getTime();
+        return gameTime.getTime()/1000;
     }
 
     static public byte[] getPhoto(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             InputStream in = connection.getInputStream();
@@ -188,6 +173,10 @@ public class JsoupHelper {
 
     public static void setNewsPageCount(int newsPageCount) {
         sNewsPageCount = newsPageCount;
+    }
+
+    public static int getsNewsPageTotal() {
+        return sNewsPageTotal;
     }
 
     public static boolean isLastNewsPage() {
