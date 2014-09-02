@@ -13,9 +13,9 @@ import java.util.ArrayList;
 
 
 public class TabsFragment extends SherlockListFragment {
-    TabsCallbacks mTabsCallbacks;
-    ArrayList<String> mFragmentsList = new ArrayList<String>();
-    ArrayAdapter<String> adapter;
+    private TabsCallbacks mTabsCallbacks;
+    private ArrayList<String> mFragmentsList = new ArrayList<String>();
+    private ArrayAdapter<String> adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

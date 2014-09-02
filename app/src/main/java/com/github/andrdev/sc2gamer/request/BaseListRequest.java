@@ -4,11 +4,9 @@ import com.octo.android.robospice.request.SpiceRequest;
 
 import java.util.LinkedList;
 
-/**
- * Created by taiyokaze on 8/31/14.
- */
-abstract public class BaseListRequest extends SpiceRequest<LinkedList> {
-    public BaseListRequest(Class<LinkedList> clazz) {
+
+abstract class BaseListRequest extends SpiceRequest<LinkedList> {
+    BaseListRequest(Class<LinkedList> clazz) {
         super(clazz);
     }
 

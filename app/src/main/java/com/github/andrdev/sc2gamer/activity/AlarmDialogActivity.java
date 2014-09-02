@@ -24,9 +24,7 @@ import com.github.andrdev.sc2gamer.service.AlarmCreatorService;
 import java.io.File;
 import java.io.IOException;
 
-/**
- *
- */
+
 public class AlarmDialogActivity extends SherlockActivity {
     private TextView mTeamName1;
     private TextView mTeamName2;
@@ -35,6 +33,7 @@ public class AlarmDialogActivity extends SherlockActivity {
     private File mImageFolder;
     private Button mOk;
     private MediaPlayer mMediaPlayer;
+    private final static String PREFERENCE_ALARM_SOUND = "pref_alarm_sound";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +83,8 @@ public class AlarmDialogActivity extends SherlockActivity {
 
     void startSound() {
         try {
-            Uri alert = Uri.parse(PreferenceManager.getDefaultSharedPreferences(this).getString("pref_alarm_sound", ""));
+            Uri alert = Uri.parse(PreferenceManager
+                    .getDefaultSharedPreferences(this).getString(PREFERENCE_ALARM_SOUND, ""));
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(this, alert);
             final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);

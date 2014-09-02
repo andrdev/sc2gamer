@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name ="PagerTabStyle">
+
+    <style name="PagerTabStyle">
         <item name="android:textSize">@dimen/pager_tab_name_text</item>
     </style>
-    <style name ="DialogAlarmTeamNameStyle" parent="DefTextStyle">
+
+    <style name="DialogAlarmTeamNameStyle" parent="DefTextStyle">
         <item name="android:layout_marginTop">@dimen/dialog_alarm_team_marginTop</item>
         <item name="android:layout_width">@dimen/dialog_alarm_team_name_width</item>
         <item name="android:layout_height">@dimen/dialog_alarm_team_name_height</item>
         <item name="android:layout_alignParentTop">true</item>
     </style>
+
     <style name="DefTextStyle">
         <item name="android:textSize">@dimen/row_text</item>
         <item name="android:gravity">center</item>
         <item name="android:textStyle">bold</item>
     </style>
+
     <style name="LogoStyle">
         <item name="android:layout_width">@dimen/dialog_alarm_logo_width</item>
         <item name="android:layout_height">@dimen/dialog_alarm_logo_height</item>
@@ -21,10 +25,12 @@
         <item name="android:layout_marginLeft">@dimen/dialog_alarm_logo_sides_margin</item>
         <item name="android:contentDescription">@string/team_logo_desc</item>
         <item name="android:scaleType">fitXY</item>
-    </style>>
-    <style name="Theme.Transparent" parent="android:Theme">
+    </style>
+    >
+
+    <style name="Theme.Transparent" parent="Theme.Sherlock.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/holo_blue_dark</item>
+        <item name="android:windowBackground">@null</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>

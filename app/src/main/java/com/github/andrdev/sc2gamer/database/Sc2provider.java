@@ -61,13 +61,12 @@ public class Sc2provider extends ContentProvider {
 
     @Override
     public Cursor query
-    (Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+            (Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor;
         switch (MATCHER.match(uri)) {
             case GAMES_ALARM:
-//                queryBuilder.appendWhere(GamesTable.ALARM + " = " + GamesTable.SET_ALARM);
             case GAMES_LIST:
                 sortOrder = SORT_GAMES;
                 queryBuilder.setTables(GamesTable.TABLE);
@@ -128,22 +127,16 @@ public class Sc2provider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        long id = 0;
         switch (MATCHER.match(uri)) {
-//            case GAMES_ALARM:
-//                break;
             case GAMES_LIST:
                 db.beginTransaction();
                 try {
-                    id = db.insert(GamesTable.TABLE, GamesTable.ALARM, values);
+                    db.insert(GamesTable.TABLE, GamesTable.ALARM, values);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
                 }
                 break;
-//            case NEWS_LIST:
-//                id = db.insert("News", null, values);
-//                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }

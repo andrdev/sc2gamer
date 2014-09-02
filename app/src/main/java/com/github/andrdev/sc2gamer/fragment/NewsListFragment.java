@@ -10,19 +10,18 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.github.andrdev.sc2gamer.JsoupHelper;
+import com.github.andrdev.sc2gamer.NetHelper;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.database.NewsTable;
 import com.github.andrdev.sc2gamer.database.Sc2provider;
@@ -35,9 +34,7 @@ import com.octo.android.robospice.request.listener.PendingRequestListener;
 
 import java.util.LinkedList;
 
-/**
- * NewsListFragment
- */
+
 public class NewsListFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final int mLoaderId = 1;
@@ -93,7 +90,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
             @Override
             public void onScroll
                     (AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (JsoupHelper.getNewsPageCount() != 0
+                if (NetHelper.getNewsPageCount() != 0
                         && firstVisibleItem + visibleItemCount >= totalItemCount - 5
                         && !mIsRefreshing) {
                     refresh();
@@ -114,7 +111,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_refresh) {
             if (isNetworkAvailable()) {
-                JsoupHelper.setNewsPageCount(0);
+                NetHelper.setNewsPageCount(0);
                 refresh();
             } else {
                 Toast.makeText(getSherlockActivity(), "Check network connection.", Toast.LENGTH_LONG).show();
@@ -125,7 +122,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     }
 
     private void refresh() {
-        if (!JsoupHelper.isLastNewsPage()) {
+        if (NetHelper.haveNewsPages()) {
             refreshAction(true);
             NewsListRequest gms = new NewsListRequest(LinkedList.class);
             mSpiceManager.execute
@@ -152,7 +149,8 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         switch (i) {
             case mLoaderId:
-                return new CursorLoader(getSherlockActivity(), Sc2provider.CONTENT_URI_NEWS, null, null, null, null);
+                return new CursorLoader
+                        (getSherlockActivity(), Sc2provider.CONTENT_URI_NEWS, null, null, null, null);
             default:
                 return null;
         }
@@ -183,7 +181,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
         }
 
         private void saveData(LinkedList<ContentValues> contentValues) {
-            if (JsoupHelper.getNewsPageCount() == 2) {
+            if (NetHelper.getNewsPageCount() == 2) {
                 getSherlockActivity().getContentResolver().delete(Sc2provider.CONTENT_URI_NEWS, null, null);
             }
             getSherlockActivity().getContentResolver().bulkInsert

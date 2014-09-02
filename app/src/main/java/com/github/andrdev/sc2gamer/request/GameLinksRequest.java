@@ -1,6 +1,6 @@
 package com.github.andrdev.sc2gamer.request;
 
-import com.github.andrdev.sc2gamer.JsoupHelper;
+import com.github.andrdev.sc2gamer.NetHelper;
 
 import java.util.LinkedList;
 
@@ -13,7 +13,7 @@ public class GameLinksRequest extends BaseListRequest {
 
     @Override
     public LinkedList<String> loadDataFromNetwork() {
-        LinkedList<String> gameLienks = JsoupHelper.getGamesLinks();
-        return gameLienks;
+        LinkedList<String> gameLinks = NetHelper.getGamesLinks();
+        return gameLinks;
     }
 }

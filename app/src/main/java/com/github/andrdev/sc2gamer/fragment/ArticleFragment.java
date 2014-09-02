@@ -3,16 +3,14 @@ package com.github.andrdev.sc2gamer.fragment;
 
 import android.os.Bundle;
 
-import com.github.andrdev.sc2gamer.JsoupHelper;
+import com.github.andrdev.sc2gamer.NetHelper;
 import com.github.andrdev.sc2gamer.database.NewsTable;
 
 /**
  * Fragment that shows article, after click on a row from NewsListFragment.
  */
 public class ArticleFragment extends WebViewFragment {
-    private String mArticleText;
     private String mLink;
-    public final static int mLoaderId = 3;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,6 +24,6 @@ public class ArticleFragment extends WebViewFragment {
 
     @Override
     String getPage() {
-        return JsoupHelper.GAME_SITE + mLink;
+        return NetHelper.GAME_SITE + mLink;
     }
 }

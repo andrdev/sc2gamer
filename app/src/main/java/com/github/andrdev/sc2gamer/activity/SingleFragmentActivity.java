@@ -22,5 +22,5 @@ public abstract class SingleFragmentActivity extends SherlockFragmentActivity {
         }
     }
 
-    public abstract SherlockFragment createFragment();
+    protected abstract SherlockFragment createFragment();
 }

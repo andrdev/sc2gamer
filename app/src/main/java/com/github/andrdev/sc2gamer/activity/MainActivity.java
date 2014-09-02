@@ -19,9 +19,7 @@ import com.github.andrdev.sc2gamer.fragment.GamesListFragment;
 import com.github.andrdev.sc2gamer.fragment.NewsListFragment;
 import com.github.andrdev.sc2gamer.fragment.TabsFragment;
 
-/**
- * Main launcher activity
- */
+
 public class MainActivity extends SherlockFragmentActivity implements
         TabsFragment.TabsCallbacks, NewsListFragment.NewsCallbacks {
 
@@ -38,8 +36,8 @@ public class MainActivity extends SherlockFragmentActivity implements
         }
     }
 
-    //loading fragments according to screen size
-    private void loadMainFragment(){
+    //loads pager for >600 dp and two-pane layout for 600+
+    private void loadMainFragment() {
         if (findViewById(R.id.fragmentDetail) == null) {
             mPager = (ViewPager) findViewById(R.id.pager);
             mPager.setAdapter(new PagerTabAdapter(mFragmentManager));
@@ -52,6 +50,7 @@ public class MainActivity extends SherlockFragmentActivity implements
             }
         }
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.menu, menu);
@@ -67,7 +66,7 @@ public class MainActivity extends SherlockFragmentActivity implements
         return super.onMenuItemSelected(featureId, item);
     }
 
-    //Callback method from TabsFragment
+    //Callback method from TabsFragment.
     @Override
     public void loadDetailsFragment(int position) {
         SherlockListFragment fragment;
@@ -82,7 +81,7 @@ public class MainActivity extends SherlockFragmentActivity implements
         mFragmentManager.beginTransaction().replace(R.id.fragmentDetail, fragment, tag).commit();
     }
 
-    //Callback method from NewsFragment. Loading article accordingly to the user choice and screen size
+    //Callback method from NewsFragment.
     @Override
     public void loadArticle(String articleLink) {
         String tag = "Article";

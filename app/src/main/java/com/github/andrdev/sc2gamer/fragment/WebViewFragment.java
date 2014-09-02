@@ -16,7 +16,7 @@ abstract class WebViewFragment extends SherlockFragment {
     private WebView mWebView;
     private boolean mIsAvailable = false;
 
-    public WebViewFragment() {
+    WebViewFragment() {
     }
 
     @Override

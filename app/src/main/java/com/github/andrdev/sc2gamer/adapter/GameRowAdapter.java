@@ -3,12 +3,12 @@ package com.github.andrdev.sc2gamer.adapter;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import com.github.andrdev.sc2gamer.LogosDownloader;
+import com.github.andrdev.sc2gamer.LogoDownloader;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.database.GamesTable;
 
@@ -20,27 +20,25 @@ import java.util.TimeZone;
  */
 public class GameRowAdapter extends SimpleCursorAdapter {
     private final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
-    LogosDownloader mThumbThread;
+    private LogoDownloader mThumbThread;
 
-    public GameRowAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags, LogosDownloader handler) {
+    public GameRowAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags, LogoDownloader handler) {
         super(context, layout, c, from, to, flags);
         mSimpleDateFormat.setTimeZone(TimeZone.getDefault());
         mThumbThread = handler;
     }
 
-    // setting date from db - get, convert, set
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         super.bindView(view, context, cursor);
         paintRow(view, cursor);
     }
 
-
     private void paintRow(View view, Cursor cursor) {
         ViewHolder viewHolder;
         if (view.getTag() == null) {
             viewHolder = new ViewHolder();
-            viewHolder.text = (TextView) view.findViewById(R.id.game_start);
+            viewHolder.timeText = (TextView) view.findViewById(R.id.game_start_time);
             viewHolder.logo1 = (ImageView) view.findViewById(R.id.team1_logo);
             viewHolder.logo2 = (ImageView) view.findViewById(R.id.team2_logo);
             view.setTag(viewHolder);
@@ -49,16 +47,16 @@ public class GameRowAdapter extends SimpleCursorAdapter {
         }
         mThumbThread.queueThumbnail(viewHolder.logo1, cursor.getString(2));
         mThumbThread.queueThumbnail(viewHolder.logo2, cursor.getString(4));
-        viewHolder.text.setText(mSimpleDateFormat.format(cursor.getLong(5)*1000));
+        viewHolder.timeText.setText(mSimpleDateFormat.format(cursor.getLong(5) * 1000));
         if (cursor.getString(6).equals(GamesTable.SET_ALARM)) {
-            view.setBackgroundColor(0xff550000);
+            viewHolder.timeText.setBackgroundColor(0xff550000);
         } else {
-            view.setBackgroundColor(Color.TRANSPARENT); //alarm set - background green
+            viewHolder.timeText.setBackgroundColor(Color.TRANSPARENT); //alarm set - background green
         }
     }
 
     static class ViewHolder {
-        TextView text;
+        TextView timeText;
         ImageView logo1;
         ImageView logo2;
     }

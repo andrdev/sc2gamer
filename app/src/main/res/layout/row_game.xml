@@ -1,31 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/def_height"
-                android:layout_margin="@dimen/def_space">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/def_height"
+    android:layout_margin="@dimen/def_margin"
+    android:layout_marginLeft="@dimen/def_margin"
+    android:layout_marginRight="@dimen/def_margin">
+
     <ImageView
-            android:id="@+id/team1_logo"
-            style="@style/LogoStyle"/>
+        android:id="@+id/team1_logo"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        style="@style/LogoStyle" />
+
     <TextView
-            android:id="@+id/team1_name"
-            android:layout_weight="4"
-            android:layout_width="@dimen/game_row_team_width"
-            android:layout_height="match_parent"
-            style="@style/DefTextStyle"/>
+        android:id="@+id/team1_name"
+        android:layout_width="@dimen/game_row_team_width"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_toEndOf="@id/team1_logo"
+        android:layout_toRightOf="@id/team1_logo"
+        android:layout_toStartOf="@+id/game_start_time"
+        android:layout_toLeftOf="@id/game_start_time"
+        style="@style/DefTextStyle" />
+
     <TextView
-            android:id="@+id/game_start"
-            android:layout_weight="2"
-            android:layout_height="match_parent"
-            android:layout_width="@dimen/game_row_time_width"
-            style="@style/DefTextStyle"/>
+        android:id="@id/game_start_time"
+        android:layout_height="match_parent"
+        android:layout_width="@dimen/game_row_time_width"
+        android:layout_marginLeft="@dimen/def_margin"
+        android:layout_marginRight="@dimen/def_margin"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:paddingRight="@dimen/game_row_time_padding"
+        android:paddingLeft="@dimen/game_row_time_padding"
+
+        style="@style/DefTextStyle" />
+
     <TextView
-            android:id="@+id/team2_name"
-            android:layout_weight="4"
-            android:layout_height="match_parent"
-            android:layout_width="@dimen/game_row_team_width"
-            style="@style/DefTextStyle"/>
+        android:id="@+id/team2_name"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_toEndOf="@id/game_start_time"
+        android:layout_toRightOf="@id/game_start_time"
+        android:layout_toStartOf="@+id/team2_logo"
+        android:layout_toLeftOf="@id/team2_logo"
+        android:layout_centerHorizontal="true"
+        style="@style/DefTextStyle" />
+
     <ImageView
-            android:id="@+id/team2_logo"
-            style="@style/LogoStyle"/>
-</LinearLayout>
+        android:id="@id/team2_logo"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        style="@style/LogoStyle" />
+</RelativeLayout>

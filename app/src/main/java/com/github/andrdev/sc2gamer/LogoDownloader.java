@@ -12,23 +12,22 @@ import android.widget.ImageView;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class LogosDownloader extends HandlerThread {
+public class LogoDownloader extends HandlerThread {
     private static final String TAG = "ThumbDownloader";
     private static final int MESSAGE_DOWNLOAD = 0;
     private static final String IMAGE_URL = "http://www.gosugamers.net/uploads/images/teams/";
     private final File mCacheFolder;
-    Handler mHandler;
-    Map<ImageView, String> requestMap =
+    private Handler mHandler;
+    private Map<ImageView, String> requestMap =
             Collections.synchronizedMap(new HashMap<ImageView, String>());
-    Handler mResponseHandler;
+    private Handler mResponseHandler;
 
-    public LogosDownloader(Handler responseHandler, File cacheFolder) {
+    public LogoDownloader(Handler responseHandler, File cacheFolder) {
         super(TAG);
         mResponseHandler = responseHandler;
         mCacheFolder = cacheFolder;
@@ -42,7 +41,6 @@ public class LogosDownloader extends HandlerThread {
             public void handleMessage(Message msg) {
                 if (msg.what == MESSAGE_DOWNLOAD) {
                     ImageView imageView = (ImageView) msg.obj;
-                    Log.i(TAG, "Got a request for url: " + requestMap.get(imageView));
                     handleRequest(imageView);
                 }
             }
@@ -53,26 +51,25 @@ public class LogosDownloader extends HandlerThread {
         try {
 
             final String url = requestMap.get(imageView);
-            if (url == null)
+            if (url == null) {
                 return;
+            }
             File file = new File(mCacheFolder + "/" + url);
-            Log.i(TAG, "file " + file.toString());
             if (file.createNewFile()) {
-                byte[] bitmapBytes = JsoupHelper.getPhoto(IMAGE_URL + "/" + url);
+                byte[] bitmapBytes = NetHelper.getTeamLogo(IMAGE_URL + "/" + url);
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
                 fileOutputStream.write(bitmapBytes);
                 fileOutputStream.flush();
                 fileOutputStream.getFD().sync();
                 fileOutputStream.close();
             }
-            Log.i("file1", "file1 " + Arrays.toString(mCacheFolder.listFiles()));
             final Bitmap bitmap = BitmapFactory
                     .decodeFile(file.toString());
             mResponseHandler.post(new Runnable() {
                 public void run() {
-                    if (requestMap.get(imageView) != url)
+                    if (requestMap.get(imageView) != url) {
                         return;
-
+                    }
                     requestMap.remove(imageView);
                     imageView.setImageBitmap(bitmap);
                 }
@@ -84,7 +81,6 @@ public class LogosDownloader extends HandlerThread {
 
     public void queueThumbnail(ImageView imageView, String url) {
         requestMap.put(imageView, url);
-
         mHandler.obtainMessage(MESSAGE_DOWNLOAD, imageView).sendToTarget();
     }
 

@@ -1,14 +1,10 @@
 package com.github.andrdev.sc2gamer.request;
 
-import android.util.Log;
-
-import com.github.andrdev.sc2gamer.JsoupHelper;
+import com.github.andrdev.sc2gamer.NetHelper;
 
 import java.util.LinkedList;
 
-/**
- * Created by taiyokaze on 8/31/14.
- */
+
 public class NewsListRequest extends BaseListRequest {
 
     public NewsListRequest(Class<LinkedList> clazz) {
@@ -17,7 +13,7 @@ public class NewsListRequest extends BaseListRequest {
 
     @Override
     public LinkedList loadDataFromNetwork() throws Exception {
-        LinkedList contentValues = JsoupHelper.getNews();
+        LinkedList contentValues = NetHelper.getNews();
         return contentValues;
     }
 }

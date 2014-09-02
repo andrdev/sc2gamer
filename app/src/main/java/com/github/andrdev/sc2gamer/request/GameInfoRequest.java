@@ -1,14 +1,11 @@
 package com.github.andrdev.sc2gamer.request;
 
 import android.content.ContentValues;
-import android.util.Log;
 
-import com.github.andrdev.sc2gamer.JsoupHelper;
+import com.github.andrdev.sc2gamer.NetHelper;
 import com.octo.android.robospice.request.SpiceRequest;
 
-/**
- * Created by taiyokaze on 8/31/14.
- */
+
 public class GameInfoRequest extends SpiceRequest<ContentValues> {
     private final String mUrl;
 
@@ -19,7 +16,7 @@ public class GameInfoRequest extends SpiceRequest<ContentValues> {
 
     @Override
     public ContentValues loadDataFromNetwork() throws Exception {
-        ContentValues cv = JsoupHelper.getGameInfo(mUrl);
+        ContentValues cv = NetHelper.getGameInfo(mUrl);
         return cv;
     }
 }

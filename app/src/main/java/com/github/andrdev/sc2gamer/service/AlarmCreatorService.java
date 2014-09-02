@@ -26,7 +26,8 @@ public class AlarmCreatorService extends IntentService {
     private AlarmManager alarmManager;
     private Intent alarmIntent;
     public final static String ALARM_ID = "alarmId";
-    public final static String ALARM_TIME_PREF ="pref_alarm_time";
+    private final static String ALARM_TIME_PREF = "pref_alarm_time";
+
     public AlarmCreatorService() {
         super("AlarmCreatorService");
     }
@@ -35,8 +36,6 @@ public class AlarmCreatorService extends IntentService {
      * Reads ALARM_EVENT extra from the intent, and proceed accordingly.
      * BOOT sent from the BootAlarmReceiver class, and reset alarms that still must be played.
      * CLICK sent from GamesListFragment class.
-     *
-     * @param intent
      */
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -85,22 +84,26 @@ public class AlarmCreatorService extends IntentService {
         }
     }
 
-    // sending alarm intent, only if alarmtime > current time
+    // sending alarm intent, only if alarmTime-earlyAlarmTime > current time
     private void setAlarm(int id, int gameTime) {
-        String earlyAlarmPreference = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(ALARM_TIME_PREF, "0");
-        long earlyAlarmTime = 0;
-        if (!earlyAlarmPreference.isEmpty()) {
-            earlyAlarmTime = 60 * 1000 * Integer.valueOf(earlyAlarmPreference);
-        }
-//        long alarmTime = 1000 + System.currentTimeMillis();
-          long alarmTime = gameTime * 1000 + earlyAlarmTime;
+        long earlyAlarmTime = getEarlyAlarmTimeMillis();
+        long alarmTime = gameTime * 1000 - earlyAlarmTime;
         if (alarmTime > System.currentTimeMillis()) {
             alarmIntent.putExtra(ALARM_ID, id);
             PendingIntent pi = PendingIntent.getBroadcast
                     (this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime, pi);
         }
+    }
+
+    private long getEarlyAlarmTimeMillis() {
+        String earlyAlarmPreference = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(ALARM_TIME_PREF, "0");
+        long earlyAlarmTime = 0;
+        if (!earlyAlarmPreference.isEmpty()) {
+            earlyAlarmTime = 60 * 1000 * Integer.valueOf(earlyAlarmPreference);
+        }
+        return earlyAlarmTime;
     }
 
     private void cancelAlarm(int id) {

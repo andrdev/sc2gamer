@@ -22,8 +22,8 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.github.andrdev.sc2gamer.JsoupHelper;
-import com.github.andrdev.sc2gamer.LogosDownloader;
+import com.github.andrdev.sc2gamer.LogoDownloader;
+import com.github.andrdev.sc2gamer.NetHelper;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.adapter.GameRowAdapter;
 import com.github.andrdev.sc2gamer.database.GamesTable;
@@ -41,10 +41,11 @@ import java.util.LinkedList;
 
 /**
  * GameListFragment is a ListFragment that loads data from internet and db asynchronously.
- * Asynchronous work handled by LoaderManager.LoaderCallbacks for db interactions,
+ * Asynchronous work handled by ContentProvider + LoaderManager.LoaderCallbacks for db interactions,
  * and Robospice for loading data from the internet. In GameListFragments onCreateView
  * method loader creates CursorAdapter and populates ListView from db, if data exists.
- * On refresh button click Robospice service is started, if successful - old data deleted
+ * <p/>
+ * old data deleted
  * from the db and new is loaded. After load to the db loader is notified and repopulates
  * ListView. On fail - toast is displayed.
  * On row click intent is sent to the AlarmCreatorService with the data from the cursor.
@@ -53,36 +54,47 @@ import java.util.LinkedList;
 public class GamesListFragment extends SherlockListFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    //fields for cursor adapter
     private final static int mLoaderId = 2;
-    private final String[] mGamesColumns = {GamesTable.TEAM1_NAME, GamesTable.TEAM2_NAME, GamesTable.TIME};
-    private final int[] mGamesFields = {R.id.team1_name, R.id.team2_name, R.id.game_start};
-
+    private final String[] mGamesColumns = {GamesTable.TEAM1_NAME, GamesTable.TEAM2_NAME};
+    private final int[] mGamesFields = {R.id.team1_name, R.id.team2_name};
+    //fields for RoboSpice
     private final SpiceManager mSpiceManager = new SpiceManager(UncachedSpiceService.class);
-    private static final String GAMES_CACHEREQUEST_ID = "gameLinks";
+    private static final String GAMES_CACHE_REQUEST_ID = "gameLinks";
+
     private boolean mIsRefreshing = false;
     private GameRowAdapter mGameRowAdapter;
     private MenuItem mRefreshButton;
-    private LogosDownloader mLogosThread;
+    private LogoDownloader mLogoDownloaderThread;
     private LinkedList<String> mGamesLinks = new LinkedList<String>();
 
+    /**
+     * LogoDownloader that performs team logo downloading and setting is started
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mLogosThread = new LogosDownloader(new Handler(), getSherlockActivity().getCacheDir());
-        mLogosThread.start();
+        mLogoDownloaderThread = new LogoDownloader(new Handler(), getSherlockActivity().getCacheDir());
+        mLogoDownloaderThread.start();
     }
 
+    /**
+     * Initiating Loader with mLoaderId. Creating and setting cursor adapter for list.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getSherlockActivity().getSupportLoaderManager().initLoader(mLoaderId, null, this);
         mGameRowAdapter = new GameRowAdapter
-                (getSherlockActivity(), R.layout.row_game, null, mGamesColumns, mGamesFields, 0, mLogosThread);
+                (getSherlockActivity(), R.layout.row_game, null, mGamesColumns, mGamesFields, 0, mLogoDownloaderThread);
         setListAdapter(mGameRowAdapter);
+        getSherlockActivity().getSupportLoaderManager().initLoader(mLoaderId, null, this);
         setHasOptionsMenu(true);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
+    /**
+     * Finding refresh button view.
+     */
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -90,13 +102,17 @@ public class GamesListFragment extends SherlockListFragment implements
         setRefreshActionButtonState();
     }
 
+    /**
+     * SpiceManager starts, and perform check for pending intents. If mGamesLinks is not empty - it checks
+     * for GameInfoRequest, and for GamesLinksRequest otherwise. setOnScrollListener is set.
+     */
     @Override
     public void onStart() {
         super.onStart();
         mSpiceManager.start(getSherlockActivity());
         if (!mGamesLinks.isEmpty()) {
             mSpiceManager.addListenerIfPending
-                    (ContentValues.class, GAMES_CACHEREQUEST_ID + mGamesLinks.size(), new GameInfoRequestListener());
+                    (ContentValues.class, GAMES_CACHE_REQUEST_ID + mGamesLinks.size(), new GameInfoRequestListener());
         } else {
             mSpiceManager.addListenerIfPending
                     (LinkedList.class, GamesTable.TABLE, new GamesLinksRequestListener());
@@ -106,10 +122,14 @@ public class GamesListFragment extends SherlockListFragment implements
             public void onScrollStateChanged(AbsListView view, int scrollState) {
             }
 
+            /**
+             * Launches refresh only if refresh action button was clicked on this launch
+             * or refresh is not taking place right now.
+             */
             @Override
             public void onScroll
-                    (AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (JsoupHelper.getGamesPageCount() != 0
+            (AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (NetHelper.getGamesPageCount() != 0
                         && firstVisibleItem + visibleItemCount >= totalItemCount - 10
                         && !mIsRefreshing) {
                     refresh();
@@ -117,6 +137,7 @@ public class GamesListFragment extends SherlockListFragment implements
             }
         });
     }
+
 
     @Override
     public void onStop() {
@@ -126,23 +147,27 @@ public class GamesListFragment extends SherlockListFragment implements
         super.onStop();
     }
 
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-//        mLogosThread.clearQueue();
+        mLogoDownloaderThread.clearQueue();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        mLogosThread.quit();
+        mLogoDownloaderThread.quit();
     }
 
+    /**
+     * Handles refresh action button click. Checks network, and starts refresh method on positive response.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_refresh) {
             if (isNetworkAvailable()) {
-                JsoupHelper.setGamesPageCount(0);
+                NetHelper.setGamesPageCount(0);
                 refresh();
             } else {
                 Toast.makeText(getSherlockActivity(), "Check network connection.", Toast.LENGTH_SHORT).show();
@@ -152,13 +177,19 @@ public class GamesListFragment extends SherlockListFragment implements
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Checks if there are some games pages left. Starts getGamesLinks method on positive.
+     */
     private void refresh() {
-        if (!JsoupHelper.isLastGamesPage()) {
-            getGames();
+        if (NetHelper.haveGamesPages()) {
+            getGamesLinks();
         }
     }
 
-    private void getGames() {
+    /**
+     * Sets action state to true. Executes RoboSpice request to get links for each game.
+     */
+    private void getGamesLinks() {
         refreshAction(true);
         GameLinksRequest gms = new GameLinksRequest(LinkedList.class);
         mSpiceManager.execute(gms, GamesTable.TABLE, DurationInMillis.ALWAYS_EXPIRED,
@@ -167,8 +198,7 @@ public class GamesListFragment extends SherlockListFragment implements
 
     /**
      * On row click AlarmCreatorService is started by intent with data from the cursor.
-     * It sets or cancels an alarm according to the Alarm column. After click row
-     * is turning to set/unset state.
+     * It sets or cancels an alarm according to the Alarm column.
      */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
@@ -189,7 +219,8 @@ public class GamesListFragment extends SherlockListFragment implements
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
         switch (loaderId) {
             case mLoaderId:
-                return new CursorLoader(getSherlockActivity(), Sc2provider.CONTENT_URI_GAMES, null, null, null, null);
+                return new CursorLoader
+                        (getSherlockActivity(), Sc2provider.CONTENT_URI_GAMES, null, null, null, null);
             default:
                 return null;
         }
@@ -205,40 +236,61 @@ public class GamesListFragment extends SherlockListFragment implements
         mGameRowAdapter.swapCursor(null);
     }
 
+    /**
+     * If list of mGamesLinks is not empty - GameInfoRequest executed, otherwise refreshAction
+     * ends by calling refreshAction with false flag.
+     */
     private void getGamesInfo() {
         if (!mGamesLinks.isEmpty()) {
             GameInfoRequest gms = new GameInfoRequest(ContentValues.class, mGamesLinks.removeFirst());
-            mSpiceManager.execute(gms, GAMES_CACHEREQUEST_ID + mGamesLinks.size(), DurationInMillis.ALWAYS_EXPIRED,
-                    new GameInfoRequestListener());
+            mSpiceManager
+                    .execute(gms, GAMES_CACHE_REQUEST_ID + mGamesLinks.size(), DurationInMillis.ALWAYS_EXPIRED,
+                            new GameInfoRequestListener());
         } else {
             refreshAction(false);
         }
     }
 
     private final class GamesLinksRequestListener implements PendingRequestListener<LinkedList> {
+        /**
+         * Ends refreshAction
+         */
         @Override
         public void onRequestFailure(SpiceException e) {
             refreshAction(false);
             Toast.makeText(getSherlockActivity(), "Failed to load", Toast.LENGTH_LONG).show();
         }
 
+        /**
+         * If there are game links - calls getGames, ends refreshAction on empty gamesLinks.
+         *
+         * @param gamesLinks list of links on the upcoming games
+         */
         @Override
         public void onRequestSuccess(LinkedList gamesLinks) {
             if (!gamesLinks.isEmpty()) {
-                saveData(gamesLinks);
+                getGames(gamesLinks);
             } else {
                 refreshAction(false);
             }
         }
 
-        private void saveData(LinkedList<String> gamesLinks) {
+        /**
+         * Passes the reference of a list of games to the mGamesLinks, clears db from games without
+         * alarm. Calls getGameInfo.
+         */
+        private void getGames(LinkedList<String> gamesLinks) {
             mGamesLinks = gamesLinks;
-            if (JsoupHelper.getGamesPageCount() == 2) {
+            if (NetHelper.getGamesPageCount() == 2) {
                 getSherlockActivity().getContentResolver().delete(Sc2provider.CONTENT_URI_GAMES, null, null);
             }
             getGamesInfo();
         }
 
+        /**
+         * Ends refreshAction
+         */
+        @Override
         public void onRequestNotFound() {
             refreshAction(false);
         }
@@ -250,6 +302,9 @@ public class GamesListFragment extends SherlockListFragment implements
             getGamesInfo();
         }
 
+        /**
+         * Insert game into db and calls getGameInfo.
+         */
         @Override
         public void onRequestSuccess(ContentValues contentValues) {
             getSherlockActivity().getContentResolver().insert
@@ -263,7 +318,9 @@ public class GamesListFragment extends SherlockListFragment implements
         }
     }
 
-    // checking internet connection
+    /**
+     * Checking network connection.
+     */
     private boolean isNetworkAvailable() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSherlockActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -274,12 +331,17 @@ public class GamesListFragment extends SherlockListFragment implements
         return false;
     }
 
+    /**
+     * Changes flag on refreshing state. Calls setRefreshActionButtonState.
+     */
     private void refreshAction(boolean state) {
         mIsRefreshing = state;
         setRefreshActionButtonState();
     }
 
-    // changing refresh button state
+    /**
+     * Reads refresh state flag and changes refresh action button state view.
+     */
     private void setRefreshActionButtonState() {
         if (mRefreshButton != null) {
             if (mIsRefreshing) {

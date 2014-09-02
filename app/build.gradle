@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.github.andrdev.sc2gamer"
-        minSdkVersion 16
+        minSdkVersion 10
         targetSdkVersion 20
         versionCode 1
         versionName "1.0"
