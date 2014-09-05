@@ -26,8 +26,6 @@
         <item name="android:contentDescription">@string/team_logo_desc</item>
         <item name="android:scaleType">fitXY</item>
     </style>
-    >
-
     <style name="Theme.Transparent" parent="Theme.Sherlock.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@null</item>

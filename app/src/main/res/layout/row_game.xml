@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/def_height"
     android:layout_margin="@dimen/def_margin"
-    android:layout_marginLeft="@dimen/def_margin"
-    android:layout_marginRight="@dimen/def_margin">
+    android:padding="4dp">
 
     <ImageView
         android:id="@+id/team1_logo"
@@ -52,5 +51,5 @@
         android:id="@id/team2_logo"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        style="@style/LogoStyle" />
+        style="@style/LogoStyle"/>
 </RelativeLayout>

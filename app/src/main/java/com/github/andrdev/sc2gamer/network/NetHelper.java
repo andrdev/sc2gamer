@@ -1,4 +1,4 @@
-package com.github.andrdev.sc2gamer;
+package com.github.andrdev.sc2gamer.network;
 
 
 import android.content.ContentValues;
@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +34,7 @@ public class NetHelper {
     private static final String NEWS = "news/archive";
     private static final String GAME = "dota2";
     private static final String GAMES_PAGES = "gosubet?u-page=";
-    private static final DateFormat simpleDateFormat =
+    private static final SimpleDateFormat mSimpleDateFormat =
             new SimpleDateFormat("MMMM dd, yyyy 'at' HH:mm z", Locale.UK);
 
 
@@ -125,7 +124,7 @@ public class NetHelper {
     private static long parseTime(String time) {
         Date gameTime = new Date();
         try {
-            gameTime = simpleDateFormat.parse(time + " CEST");
+            gameTime = mSimpleDateFormat.parse(time + " CEST");
         } catch (ParseException e) {
             Log.e("NetHelper", "error parsing time", e);
         }

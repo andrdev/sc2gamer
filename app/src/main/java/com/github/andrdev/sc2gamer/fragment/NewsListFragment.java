@@ -21,13 +21,13 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.github.andrdev.sc2gamer.NetHelper;
+import com.github.andrdev.sc2gamer.network.NetHelper;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.database.NewsTable;
-import com.github.andrdev.sc2gamer.database.Sc2provider;
+import com.github.andrdev.sc2gamer.database.SglProvider;
 import com.github.andrdev.sc2gamer.request.NewsListRequest;
+import com.github.andrdev.sc2gamer.service.SglSpiceService;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.UncachedSpiceService;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.PendingRequestListener;
@@ -42,7 +42,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     private final int[] mNewsFields = {R.id.news_title};
 
     private SimpleCursorAdapter mSimpleCursorAdapter;
-    private final SpiceManager mSpiceManager = new SpiceManager(UncachedSpiceService.class);
+    private final SpiceManager mSpiceManager = new SpiceManager(SglSpiceService.class);
     private MenuItem mRefreshButton;
     private boolean mIsRefreshing = false;
     private NewsCallbacks mNewsCallbacks;
@@ -126,7 +126,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
             refreshAction(true);
             NewsListRequest gms = new NewsListRequest(LinkedList.class);
             mSpiceManager.execute
-                    (gms, NewsTable.TABLE, DurationInMillis.ALWAYS_EXPIRED, new NewsListRequestListener());
+                    (gms, NewsTable.TABLE, DurationInMillis.ONE_SECOND * 30, new NewsListRequestListener());
         }
     }
 
@@ -135,7 +135,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
         if (isNetworkAvailable()) {
             loadArticle(position);
         } else {
-            Toast.makeText(getSherlockActivity(), "Check network connection.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getSherlockActivity(), "Check your internet connection.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -150,7 +150,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
         switch (i) {
             case mLoaderId:
                 return new CursorLoader
-                        (getSherlockActivity(), Sc2provider.CONTENT_URI_NEWS, null, null, null, null);
+                        (getSherlockActivity(), SglProvider.CONTENT_URI_NEWS, null, null, null, null);
             default:
                 return null;
         }
@@ -174,7 +174,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
 
         @Override
         public void onRequestSuccess(LinkedList contentValues) {
-            if (contentValues.size() > 0) {
+            if (contentValues!=null && contentValues.size() > 0) {
                 saveData(contentValues);
             }
             refreshAction(false);
@@ -182,15 +182,16 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
 
         private void saveData(LinkedList<ContentValues> contentValues) {
             if (NetHelper.getNewsPageCount() == 2) {
-                getSherlockActivity().getContentResolver().delete(Sc2provider.CONTENT_URI_NEWS, null, null);
+                getSherlockActivity().getContentResolver().delete(SglProvider.CONTENT_URI_NEWS, null, null);
             }
             getSherlockActivity().getContentResolver().bulkInsert
-                    (Sc2provider.CONTENT_URI_NEWS, contentValues.toArray(new ContentValues[contentValues.size()]));
+                    (SglProvider.CONTENT_URI_NEWS, contentValues.toArray(new ContentValues[contentValues.size()]));
         }
 
         @Override
         public void onRequestNotFound() {
-            refreshAction(false);
+//            mSpiceManager.getFromCache
+//                    (LinkedList.class, NewsTable.TABLE, DurationInMillis.ONE_SECOND * 30, new NewsListRequestListener());
         }
     }
 

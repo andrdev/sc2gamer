@@ -4,9 +4,6 @@ package com.github.andrdev.sc2gamer.database;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-
 
 public class GamesTable implements BaseColumns {
     public static final String TABLE = "Games";
@@ -19,11 +16,6 @@ public class GamesTable implements BaseColumns {
     public static final String ALARM = "alarm";
     public static final String DEFAULT_ALARM = "false";
     public static final String SET_ALARM = "true";
-    private static final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
-
-    static {
-        mSimpleDateFormat.setTimeZone(TimeZone.getDefault());
-    }
 
     private static final String CREATE = "CREATE TABLE " + TABLE + " ( "
             + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TEAM1_NAME + " TEXT NOT NULL, "

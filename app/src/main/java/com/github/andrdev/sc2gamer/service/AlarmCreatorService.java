@@ -11,7 +11,7 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.github.andrdev.sc2gamer.database.GamesTable;
-import com.github.andrdev.sc2gamer.database.Sc2provider;
+import com.github.andrdev.sc2gamer.database.SglProvider;
 import com.github.andrdev.sc2gamer.receiver.AlarmReceiver;
 
 /**
@@ -59,7 +59,7 @@ public class AlarmCreatorService extends IntentService {
                     cancelAlarm(id);
                 }
                 cv.put(GamesTable.ALARM, alarmAction);
-                getApplicationContext().getContentResolver().update(Sc2provider.CONTENT_URI_ALARMS, cv,
+                getApplicationContext().getContentResolver().update(SglProvider.CONTENT_URI_ALARMS, cv,
                         GamesTable._ID + " = ?", new String[]{String.valueOf(id)});
                 break;
             default:
@@ -71,7 +71,7 @@ public class AlarmCreatorService extends IntentService {
     //getting all alarms, and calling setAlarm method on each
     private void bootAlarmStart() {
         String[] columns = {GamesTable._ID, GamesTable.TIME};
-        Cursor cursor = this.getContentResolver().query(Sc2provider.CONTENT_URI_ALARMS,
+        Cursor cursor = this.getContentResolver().query(SglProvider.CONTENT_URI_ALARMS,
                 columns, GamesTable.ALARM + " = ?", new String[]{GamesTable.SET_ALARM}, null);
         try {
             if (cursor != null) {
@@ -84,7 +84,8 @@ public class AlarmCreatorService extends IntentService {
         }
     }
 
-    // sending alarm intent, only if alarmTime-earlyAlarmTime > current time
+    // sending alarm intent, only if alarmTime-earlyAlarmTime > current time.
+    // fix it. time set and time cancel different -earlyalarm.
     private void setAlarm(int id, int gameTime) {
         long earlyAlarmTime = getEarlyAlarmTimeMillis();
         long alarmTime = gameTime * 1000 - earlyAlarmTime;

@@ -3,7 +3,7 @@ package com.github.andrdev.sc2gamer.fragment;
 
 import android.os.Bundle;
 
-import com.github.andrdev.sc2gamer.NetHelper;
+import com.github.andrdev.sc2gamer.network.NetHelper;
 import com.github.andrdev.sc2gamer.database.NewsTable;
 
 /**

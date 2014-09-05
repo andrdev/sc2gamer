@@ -14,7 +14,7 @@ import android.net.Uri;
  * Consist is a number of constants for creating and working with Uri, and some methods
  * for work with db.
  */
-public class Sc2provider extends ContentProvider {
+public class SglProvider extends ContentProvider {
     private DBHelper dbHelper;
 
     /**
@@ -131,7 +131,7 @@ public class Sc2provider extends ContentProvider {
             case GAMES_LIST:
                 db.beginTransaction();
                 try {
-                    db.insert(GamesTable.TABLE, GamesTable.ALARM, values);
+                    db.insertWithOnConflict(GamesTable.TABLE, GamesTable.ALARM, values, SQLiteDatabase.CONFLICT_IGNORE);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
@@ -149,8 +149,8 @@ public class Sc2provider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         switch (MATCHER.match(uri)) {
             case GAMES_LIST:
-                db.delete(GamesTable.TABLE, GamesTable.ALARM + " = ? OR "
-                        + GamesTable.TIME + " < ?", new String[]{"false", "STRFTIME(%s, 'now')"});
+                db.delete(GamesTable.TABLE, GamesTable.TIME + " < ? OR "
+                        + GamesTable.ALARM + " = ?", new String[]{"" + System.currentTimeMillis() / 1000, "false",});
                 break;
             case GAMES_ALARM:
                 break;

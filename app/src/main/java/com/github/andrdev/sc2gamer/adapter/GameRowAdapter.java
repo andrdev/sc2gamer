@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.andrdev.sc2gamer.LogoDownloader;
+import com.github.andrdev.sc2gamer.network.LogoDownloader;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.database.GamesTable;
 
@@ -51,7 +51,7 @@ public class GameRowAdapter extends SimpleCursorAdapter {
         if (cursor.getString(6).equals(GamesTable.SET_ALARM)) {
             viewHolder.timeText.setBackgroundColor(0xff550000);
         } else {
-            viewHolder.timeText.setBackgroundColor(Color.TRANSPARENT); //alarm set - background green
+            viewHolder.timeText.setBackgroundColor(Color.TRANSPARENT);
         }
     }
 

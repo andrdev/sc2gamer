@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.andrdev.sc2gamer"
     android:versionCode="1"
-    android:versionName="1.0">
+    android:versionName="1.0" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -14,33 +14,37 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:label="@string/app_name"
-        android:icon="@drawable/ic_launcher"
         android:allowBackup="true"
-        android:theme="@style/Theme.Sherlock">
-        <activity android:name=".activity.ArticleActivity"></activity>
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Sherlock" >
+        <activity android:name=".activity.ArticleActivity" />
         <activity
             android:name=".activity.AlarmDialogActivity"
-            android:theme="@style/Theme.Transparent"></activity>
-
-        <activity android:name=".activity.PreferenceActivity"></activity>
+            android:theme="@style/Theme.Transparent" />
+        <activity android:name=".activity.PreferenceActivity" />
         <activity
             android:name=".activity.MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <receiver android:name=".receiver.AlarmReceiver" />
+
         <provider
+            android:name=".database.SglProvider"
             android:authorities="com.git.andrdev.sc2gamer.contentprovider"
-            android:name=".database.Sc2provider"
             android:exported="false" />
 
         <service
-            android:name="com.octo.android.robospice.UncachedSpiceService"
+            android:name=".service.SglNewsSetvice"
+            android:exported="false" />
+        <service
+            android:name=".service.SglSpiceService"
             android:exported="false" />
         <service
             android:name=".service.AlarmCreatorService"
@@ -50,11 +54,12 @@
             android:name=".receiver.BootAlarmReceiver"
             android:enabled="true"
             android:exported="true"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
             />
         </receiver>
     </application>
+
 </manifest>

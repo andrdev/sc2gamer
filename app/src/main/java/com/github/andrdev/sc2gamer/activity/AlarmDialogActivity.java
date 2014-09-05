@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.database.GamesTable;
-import com.github.andrdev.sc2gamer.database.Sc2provider;
+import com.github.andrdev.sc2gamer.database.SglProvider;
 import com.github.andrdev.sc2gamer.service.AlarmCreatorService;
 
 import java.io.File;
@@ -53,9 +53,6 @@ public class AlarmDialogActivity extends SherlockActivity {
         mOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMediaPlayer.stop();
-                mMediaPlayer.reset();
-                mMediaPlayer.release();
                 finish();
             }
         });
@@ -64,7 +61,7 @@ public class AlarmDialogActivity extends SherlockActivity {
     void populateViews() {
         String alarmId = String.valueOf(getIntent().getIntExtra(AlarmCreatorService.ALARM_ID, 1));
         mImageFolder = this.getCacheDir();
-        Cursor cursor = this.getContentResolver().query(Sc2provider.CONTENT_URI_ALARMS,
+        Cursor cursor = this.getContentResolver().query(SglProvider.CONTENT_URI_ALARMS,
                 null, GamesTable._ID + " = ?", new String[]{alarmId}, null);
         try {
             cursor.moveToFirst();
@@ -99,4 +96,19 @@ public class AlarmDialogActivity extends SherlockActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mMediaPlayer != null) {
+            mMediaPlayer.release();
+        }
+    }
+
+    @Override
+    public void finish() {
+//        mMediaPlayer.stop();
+//        mMediaPlayer.reset();
+//        mMediaPlayer.release();
+        super.finish();
+    }
 }

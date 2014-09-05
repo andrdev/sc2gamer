@@ -9,6 +9,4 @@ abstract class BaseListRequest extends SpiceRequest<LinkedList> {
     BaseListRequest(Class<LinkedList> clazz) {
         super(clazz);
     }
-
-
 }

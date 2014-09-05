@@ -1,4 +1,4 @@
-package com.github.andrdev.sc2gamer;
+package com.github.andrdev.sc2gamer.network;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;

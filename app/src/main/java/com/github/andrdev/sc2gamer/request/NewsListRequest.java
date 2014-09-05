@@ -1,6 +1,6 @@
 package com.github.andrdev.sc2gamer.request;
 
-import com.github.andrdev.sc2gamer.NetHelper;
+import com.github.andrdev.sc2gamer.network.NetHelper;
 
 import java.util.LinkedList;
 
