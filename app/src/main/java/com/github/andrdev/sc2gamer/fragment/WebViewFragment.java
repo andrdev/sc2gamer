@@ -3,6 +3,7 @@ package com.github.andrdev.sc2gamer.fragment;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.github.andrdev.sc2gamer.network.NetHelper;
+
+import java.io.IOException;
 
 
 abstract class WebViewFragment extends SherlockFragment {
@@ -26,13 +30,15 @@ abstract class WebViewFragment extends SherlockFragment {
         }
         mWebView = new WebView(getSherlockActivity());
         mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setSupportZoom(true);
+        mWebView.getSettings().setBuiltInZoomControls(true);
         mWebView.setWebViewClient(new WebViewClient() {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return false;
             }
         });
         mIsAvailable = true;
-        mWebView.loadUrl(getPage());
+        getHtml();
         return mWebView;
     }
 
@@ -72,5 +78,5 @@ abstract class WebViewFragment extends SherlockFragment {
         return mIsAvailable ? mWebView : null;
     }
 
-    abstract String getPage();
+    abstract void getHtml();
 }

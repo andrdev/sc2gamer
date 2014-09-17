@@ -12,16 +12,22 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Random;
 
 
 public class NetHelper {
@@ -45,11 +51,11 @@ public class NetHelper {
                 sNewsPageCount++;
                 Document doc = Jsoup.connect(GAME_SITE + "/" + GAME + "/" + NEWS).userAgent(USER_AGENT).get();
                 if (sNewsPageCount == sNewsPageTotal) {
-                    Elements pagesElements = doc.select("div[class=pages").select("a");
+                    Elements pagesElements = doc.select("div.pages").select("a");
                     String lastPageLink = pagesElements.last().attr("href");
                     sNewsPageTotal = getLastPageNumber(lastPageLink);
                 }
-                Elements elements = doc.select("table[class=simple gamelist medium")
+                Elements elements = doc.select("table.simple.gamelist.medium")
                         .select("tbody").select("tr");
                 for (Element e : elements) {
                     ContentValues row = new ContentValues();
@@ -73,14 +79,14 @@ public class NetHelper {
                 doc = Jsoup.connect(GAME_SITE + "/" + GAME + "/" + GAMES_PAGES + sGamesPageCount)
                         .userAgent(USER_AGENT).get();
                 if (sGamesPageCount == sGamesPageTotal) {
-                    Elements elements = doc.select("div[class=box").get(1).select("div[class=pages").select("a");
+                    Elements elements = doc.select("div.box").get(1).select("div.pages").select("a");
                     String lastPageLink = elements.last().attr("href");
                     sGamesPageTotal = getLastPageNumber(lastPageLink);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Elements elements = doc.select("div[class=box").get(1).select("tr");
+            Elements elements = doc.select("div.box").get(1).select("tr");
             for (Element e : elements) {
                 linkList.add(e.select("a").attr("href"));
             }
@@ -99,19 +105,19 @@ public class NetHelper {
         String logoLink1;
         String logoLink2;
 
-        cv.put(GamesTable.TEAM1_NAME, doc.select("div[class=opponent opponent1")
+        cv.put(GamesTable.TEAM1_NAME, doc.select("div.opponent.opponent1")
                 .select("a").text());
-        logoLink1 = doc.select("div[class=opponent opponent1")
+        logoLink1 = doc.select("div.opponent.opponent1")
                 .select("img").attr("src");
         cv.put(GamesTable.TEAM1_LOGO, logoLink1
                 .substring(logoLink1.lastIndexOf("/") + 1, logoLink1.length()));
-        cv.put(GamesTable.TEAM2_NAME, doc.select("div[class=opponent opponent2")
+        cv.put(GamesTable.TEAM2_NAME, doc.select("div.opponent.opponent2")
                 .select("a").text());
-        logoLink2 = doc.select("div[class=opponent opponent2")
+        logoLink2 = doc.select("div.opponent.opponent2")
                 .select("img").attr("src");
         cv.put(GamesTable.TEAM2_LOGO, logoLink2
                 .substring(logoLink2.lastIndexOf("/") + 1, logoLink2.length()));
-        cv.put(GamesTable.TIME, parseTime(doc.select("p[class=datetime]").text()));
+        cv.put(GamesTable.TIME, parseTime(doc.select("p.datetime").text()));
         return cv;
     }
 
@@ -137,7 +143,6 @@ public class NetHelper {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             InputStream in = connection.getInputStream();
-
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 return null;
             }
@@ -177,6 +182,50 @@ public class NetHelper {
         return sNewsPageCount <= sNewsPageTotal;
     }
 
+    public static ArrayList getArticle(String newsUrl) throws IOException {
+        Document doc = Jsoup.connect(GAME_SITE+newsUrl).userAgent(USER_AGENT)
+                .get();
+        deleteTags(doc);
+        String cssStyleLinks = headerCss(doc);
+        String newsBody = newsBody(doc);
+        ArrayList<String> str = new ArrayList<String>();
+        str.add(cssStyleLinks);
+        str.add(newsBody);
+        return str;
+    }
+    private static void deleteTags(Document doc) {
+        doc.select("div#posted-by").remove();
+        doc.select("div.article-author").remove();
+        doc.select("form.rating").remove();
+    }
+    private static String headerCss(Document doc) {
+        return doc.head().select("base[href]").outerHtml().concat(
+                doc.head().select("link[type=text/css]").outerHtml());
+    }
+    private static String newsBody(Document doc) {
+        String body = doc.select("body.body-dota2")
+                .select("div.columns")
+                .select("div#col1.rows")
+                .select("div#article.box")
+                .select("div.content.light")
+                .select("div.text.clearfix").html();
+        return fixImagesUrl(body);
+    }
+    private static String fixImagesUrl(String body) {
+        return body.replaceAll("src=\"/", String.format("src=\"%s", GAME_SITE));
+    }
+    private static String generateHtmlPage(String headerCss, String newsBody) throws IOException {
+        BufferedReader htmlTemplate = new BufferedReader(new FileReader("file:///android_asset/templ.html"));
+        StringBuilder sb = new StringBuilder();
+        String temp = null;
+        while ((temp = htmlTemplate.readLine()) != null) {
+            sb.append(temp);
+        }
+        String finalPage = sb.toString();
+        finalPage = finalPage.replace("xxxHEADxxx", headerCss);
+        finalPage = finalPage.replace("xxxBODYxxx", newsBody);
+        return finalPage;
+    }
 
 }
 

@@ -14,7 +14,7 @@ import android.net.Uri;
  * Consist is a number of constants for creating and working with Uri, and some methods
  * for work with db.
  */
-public class SglProvider extends ContentProvider {
+public class Sc2Provider extends ContentProvider {
     private DBHelper dbHelper;
 
     /**

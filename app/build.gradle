@@ -69,7 +69,7 @@ dependencies {
     compile('com.actionbarsherlock:actionbarsherlock:4.4.0@aar') {
         exclude module: 'support-v4'
     }
-    compile('com.octo.android.robospice:robospice:1.4.13') {
+    compile('com.octo.android.robospice:robospice:1.4.12') {
         exclude module: 'support-v4'
     }
     compile 'com.android.support:support-v4:20.+'

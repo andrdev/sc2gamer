@@ -1,6 +1,7 @@
 package com.github.andrdev.sc2gamer.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -8,9 +9,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.andrdev.sc2gamer.network.LogoDownloader;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.database.GamesTable;
+import com.github.andrdev.sc2gamer.network.LogoDownloader;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -21,11 +22,13 @@ import java.util.TimeZone;
 public class GameRowAdapter extends SimpleCursorAdapter {
     private final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
     private LogoDownloader mThumbThread;
+    private Context mContext;
 
     public GameRowAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags, LogoDownloader handler) {
         super(context, layout, c, from, to, flags);
         mSimpleDateFormat.setTimeZone(TimeZone.getDefault());
         mThumbThread = handler;
+        mContext = context;
     }
 
     @Override
@@ -53,6 +56,10 @@ public class GameRowAdapter extends SimpleCursorAdapter {
         } else {
             viewHolder.timeText.setBackgroundColor(Color.TRANSPARENT);
         }
+    }
+
+    private void setTeamLogo(ImageView imageView, String url) {
+        Intent intent = new Intent(mContext, LogoDownloader.class);
     }
 
     static class ViewHolder {

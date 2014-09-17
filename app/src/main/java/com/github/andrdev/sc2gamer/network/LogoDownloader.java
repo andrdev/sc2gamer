@@ -18,7 +18,7 @@ import java.util.Map;
 
 
 public class LogoDownloader extends HandlerThread {
-    private static final String TAG = "ThumbDownloader";
+    private static final String TAG = "LogoDownloader";
     private static final int MESSAGE_DOWNLOAD = 0;
     private static final String IMAGE_URL = "http://www.gosugamers.net/uploads/images/teams/";
     private final File mCacheFolder;

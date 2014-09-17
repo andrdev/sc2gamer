@@ -21,17 +21,19 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.github.andrdev.sc2gamer.network.NetHelper;
 import com.github.andrdev.sc2gamer.R;
 import com.github.andrdev.sc2gamer.database.NewsTable;
-import com.github.andrdev.sc2gamer.database.SglProvider;
+import com.github.andrdev.sc2gamer.database.Sc2Provider;
+import com.github.andrdev.sc2gamer.network.NetHelper;
 import com.github.andrdev.sc2gamer.request.NewsListRequest;
-import com.github.andrdev.sc2gamer.service.SglSpiceService;
 import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.UncachedSpiceService;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.PendingRequestListener;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 
@@ -42,7 +44,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
     private final int[] mNewsFields = {R.id.news_title};
 
     private SimpleCursorAdapter mSimpleCursorAdapter;
-    private final SpiceManager mSpiceManager = new SpiceManager(SglSpiceService.class);
+    private final SpiceManager mSpiceManager = new SpiceManager(UncachedSpiceService.class);
     private MenuItem mRefreshButton;
     private boolean mIsRefreshing = false;
     private NewsCallbacks mNewsCallbacks;
@@ -126,7 +128,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
             refreshAction(true);
             NewsListRequest gms = new NewsListRequest(LinkedList.class);
             mSpiceManager.execute
-                    (gms, NewsTable.TABLE, DurationInMillis.ONE_SECOND * 30, new NewsListRequestListener());
+                    (gms, NewsTable.TABLE, DurationInMillis.ALWAYS_EXPIRED, new NewsListRequestListener());
         }
     }
 
@@ -150,7 +152,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
         switch (i) {
             case mLoaderId:
                 return new CursorLoader
-                        (getSherlockActivity(), SglProvider.CONTENT_URI_NEWS, null, null, null, null);
+                        (getSherlockActivity(), Sc2Provider.CONTENT_URI_NEWS, null, null, null, null);
             default:
                 return null;
         }
@@ -174,7 +176,7 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
 
         @Override
         public void onRequestSuccess(LinkedList contentValues) {
-            if (contentValues!=null && contentValues.size() > 0) {
+            if (contentValues != null && contentValues.size() > 0) {
                 saveData(contentValues);
             }
             refreshAction(false);
@@ -182,16 +184,15 @@ public class NewsListFragment extends SherlockListFragment implements LoaderMana
 
         private void saveData(LinkedList<ContentValues> contentValues) {
             if (NetHelper.getNewsPageCount() == 2) {
-                getSherlockActivity().getContentResolver().delete(SglProvider.CONTENT_URI_NEWS, null, null);
+                getSherlockActivity().getContentResolver().delete(Sc2Provider.CONTENT_URI_NEWS, null, null);
             }
             getSherlockActivity().getContentResolver().bulkInsert
-                    (SglProvider.CONTENT_URI_NEWS, contentValues.toArray(new ContentValues[contentValues.size()]));
+                    (Sc2Provider.CONTENT_URI_NEWS, contentValues.toArray(new ContentValues[contentValues.size()]));
         }
 
         @Override
         public void onRequestNotFound() {
-//            mSpiceManager.getFromCache
-//                    (LinkedList.class, NewsTable.TABLE, DurationInMillis.ONE_SECOND * 30, new NewsListRequestListener());
+            refreshAction(false);
         }
     }
 

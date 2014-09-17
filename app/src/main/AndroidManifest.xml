@@ -32,19 +32,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <receiver android:name=".receiver.AlarmReceiver" />
-
         <provider
-            android:name=".database.SglProvider"
+            android:name=".database.Sc2Provider"
             android:authorities="com.git.andrdev.sc2gamer.contentprovider"
             android:exported="false" />
-
         <service
-            android:name=".service.SglNewsSetvice"
-            android:exported="false" />
-        <service
-            android:name=".service.SglSpiceService"
+            android:name="com.octo.android.robospice.UncachedSpiceService"
             android:exported="false" />
         <service
             android:name=".service.AlarmCreatorService"
